@@ -49,6 +49,51 @@ class GMGLSurfaceView extends GLSurfaceView {
 }
 
 class GMGLRenderer implements GLSurfaceView.Renderer {
+    private static int vertexShader;
+    private static int fragmentShader;
+
+    /* generic shader code for all objects */
+    private final String vertexShaderCode =
+            "attribute vec4 vPosition;" +
+                    "void main() {" +
+                    "   gl_Position = vPosition;" +
+                    "}";
+    private final String fragmentShaderCode =
+            "precision mediump float;" +
+                    "uniform vec4 vColor;" +
+                    "void main() {" +
+                    "   gl_FragColor = vColor;" +
+                    "}";
+
+    public GMGLRenderer(){
+        super();
+
+        vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
+        fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
+    }
+
+
+    public static int getVertexShader() {
+        return vertexShader;
+    }
+
+    public static int getFragmentShader() {
+        return fragmentShader;
+    }
+
+    /* loads and compiles a shader to be used in an OpenGL environment */
+    public static int loadShader(int type, String shaderCode){
+        /* create a vertex shader type (GLES20.GL_VERTEX_SHADER)
+            or a fragment shader type (GLES20.GL_FRAGMENT_SHADER)
+         */
+        int shader = GLES20.glCreateShader(type);
+
+        /* add the source code to the shader and compile it */
+        GLES20.glShaderSource(shader, shaderCode);
+        GLES20.glCompileShader(shader);
+        return shader;
+    }
+
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
         // Set the background frame color
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
