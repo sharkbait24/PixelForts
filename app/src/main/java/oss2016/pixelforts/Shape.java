@@ -44,6 +44,22 @@ public abstract class Shape {
         return (float) Math.sqrt(dx * dx + dy * dy);
     }
 
+    /* Set a square's dimensions */
+    public boolean setDimensions(float Width, float Height){
+        return false; /* if this is run object is not a square */
+    }
+
+    /* Set a circle's dimensions */
+    public boolean setDimensions(float Radius){
+        return false;
+    }
+
+    /* build the vertices for derived classes so they can be drawn */
+    public void buildVertices(){}
+
+    /* draw the object */
+    public abstract void Draw();
+
     /* checks for collision with a Circle object */
     public abstract boolean hasCollision(Circle circle);
 

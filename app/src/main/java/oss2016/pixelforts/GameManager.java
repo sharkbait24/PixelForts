@@ -11,7 +11,13 @@ import javax.microedition.khronos.egl.EGLConfig;
 
 /* Copyright (c) 2016 Joe Coleman
    This program is available under the "MIT" license.
-   Please see the COPYING file for license information.*/
+   Please see the COPYING file for license information.
+
+   GameManager manages gameplay and rendering all objects on the screen while the game is playing.
+
+   All rendering code comes from Google's Android Developer Training
+   <https://developer.android.com/training/graphics/opengl/index.html>.
+*/
 public class GameManager extends AppCompatActivity {
     private GLSurfaceView gmView;
 
