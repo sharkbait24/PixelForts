@@ -38,18 +38,6 @@ public class GMGLRenderer implements GLSurfaceView.Renderer{
                     "   gl_FragColor = vColor;" +
                     "}";
 
-    public GMGLRenderer(){
-        super();
-
-        vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-        fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
-
-        glProgram = GLES20.glCreateProgram();               /* create empty OpenGL ES Program */
-        GLES20.glAttachShader(glProgram, vertexShader);     /* add the vertex shader to program */
-        GLES20.glAttachShader(glProgram, fragmentShader);   /* add fragment shader */
-        GLES20.glLinkProgram(glProgram);                    /* creates OpenGL ES program executables */
-    }
-
     /* loads and compiles a shader to be used in an OpenGL environment */
     public static int loadShader(int type, String shaderCode){
         /* create a vertex shader type (GLES20.GL_VERTEX_SHADER)
@@ -66,6 +54,14 @@ public class GMGLRenderer implements GLSurfaceView.Renderer{
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
         // Set the background frame color
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+        vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
+        fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
+
+        glProgram = GLES20.glCreateProgram();               /* create empty OpenGL ES Program */
+        GLES20.glAttachShader(glProgram, vertexShader);     /* add the vertex shader to program */
+        GLES20.glAttachShader(glProgram, fragmentShader);   /* add fragment shader */
+        GLES20.glLinkProgram(glProgram);                    /* creates OpenGL ES program executables */
     }
 
     public void onDrawFrame(GL10 unused) {

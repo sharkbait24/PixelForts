@@ -1,5 +1,7 @@
 package oss2016.pixelforts;
 
+import android.opengl.GLES20;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -32,7 +34,6 @@ public class Rectangle extends Transform {
 
         width = 1.0f;
         height = 1.0f;
-        renderer = new RectangleRenderer();
     }
 
     public Rectangle(float CenterX, float CenterY, float Width, float Height){
@@ -43,7 +44,6 @@ public class Rectangle extends Transform {
             width = 1.0f;
             height = 1.0f;
         }
-        renderer = new RectangleRenderer();
         buildVertices();
     }
 
@@ -51,7 +51,7 @@ public class Rectangle extends Transform {
     public int addRenderer(){
         if (renderer != null)
             return 0;
-        renderer = new RectangleRenderer();
+        renderer = new RectangleRenderer(xyCords);
         return 1;
     }
 
@@ -73,10 +73,10 @@ public class Rectangle extends Transform {
             * Note rotations are not currently supported*/
             float dx = Width / 2.0f;
             float dy = Height / 2.0f;
-            xyCords[0] = xyCords[3] = -dx;
-            xyCords[6] = xyCords[9] = dx;
-            xyCords[1] = xyCords[10] = dy;
-            xyCords[4] = xyCords[7] = -dy;
+            xyCords[0] = xyCords[3] = centerX - dx;
+            xyCords[6] = xyCords[9] = centerX + dx;
+            xyCords[1] = xyCords[10] = centerY + dy;
+            xyCords[4] = xyCords[7] = centerY - dy;
 
             setTopAndBottom();
             return true;
@@ -120,8 +120,27 @@ class RectangleRenderer{
     private FloatBuffer vertexBuffer;
     private ShortBuffer drawListBuffer;
     private short drawOrder[] = {0, 1, 2, 0, 2, 3};
+    private float [] color = {0.5f, 0.5f, 0.5f, 0.0f};
 
-    int test = GMGLRenderer.getGlProgram();
+    private int mPositionHandle;
+    private int mColorHandle;
+    private static int vertexCount;
+    private static int vertexStride;
+    private static int glProgram;
+
+    public RectangleRenderer(float [] xyCoords) {
+        vertexCount = xyCoords.length / Rectangle.COORDS_PER_VERTEX;
+        vertexStride = Rectangle.COORDS_PER_VERTEX * 4;
+        glProgram = GMGLRenderer.getGlProgram();
+    }
+
+    public void setColor(float [] Color){
+        if (Color == null)
+            return;
+
+        for (int i = 0; i < Color.length; ++i)
+            color[i] = Color[i];
+    }
 
     /* Build the vertexBuffer and drawListBuffer to be used in the Draw function */
     public void buildVertices(float [] xyCords){
@@ -142,6 +161,30 @@ class RectangleRenderer{
 
     /* Draw the Square */
     public void Draw(){
+        /* Add program to OpenGL ES environment */
+        GLES20.glUseProgram(glProgram);
 
+        /* get handle to vertex shader's vPosition member */
+        mPositionHandle = GLES20.glGetAttribLocation(glProgram, "vPosition");
+
+        /* Enable a handle to the 2 triangle vertices (rectangle rendered as 2 triangles) */
+        GLES20.glEnableVertexAttribArray(mPositionHandle);
+
+        /* Prepare the 2 triangle's coordinate data */
+        GLES20.glVertexAttribPointer(mPositionHandle, Rectangle.COORDS_PER_VERTEX,
+                                    GLES20.GL_FLOAT, false,
+                                    vertexStride, vertexBuffer);
+
+        /* get handle to fragment shader's vColor member */
+        mColorHandle = GLES20.glGetUniformLocation(glProgram, "vColor");
+
+        /* set color for drawing the triangles */
+        GLES20.glUniform4fv(mColorHandle, 1, color, 0);
+
+        /* Draw the triangles */
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, vertexCount);
+
+        /* Disable vertex array */
+        GLES20.glDisableVertexAttribArray(mPositionHandle);
     }
 }
