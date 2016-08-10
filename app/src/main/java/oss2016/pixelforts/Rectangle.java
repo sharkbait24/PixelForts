@@ -16,7 +16,7 @@ import java.nio.ShortBuffer;
    All of the rendering code was taken from Google's Android Developer Training
    <https://developer.android.com/training/graphics/opengl/index.html>.
  */
-public class Square extends Shape {
+public class Rectangle extends Shape {
     private float width;
     private float height;
 
@@ -24,25 +24,25 @@ public class Square extends Shape {
     private FloatBuffer vertexBuffer;
     private ShortBuffer drawListBuffer;
     static final int COORDS_PER_VERTEX = 3; /* OpenGL renders in 3D, but only the first two are used in this game */
-    private float squareCoords[] = {
+    private float xyCords[] = {
             -0.5f, 0.5f, 0.0f,      /* top left */
             -0.5f, -0.5f, 0.0f,     /* bottom left */
             0.5f, -0.5f, 0.0f,      /* bottom right */
             0.5f, 0.5f, 0.0f };     /* top right */
     private short drawOrder[] = {0, 1, 2, 0, 2, 3};
 
-    public Square() {
+    public Rectangle() {
         super();
 
         width = 1.0f;
         height = 1.0f;
     }
 
-    public Square(float CenterX, float CenterY, float Width, float Height){
+    public Rectangle(float CenterX, float CenterY, float Width, float Height){
         super(CenterX, CenterY);
 
         if (!setDimensions(Width, Height))
-        { /* use default squareCoords values */
+        { /* use default xyCords values */
             width = 1.0f;
             height = 1.0f;
         }
@@ -55,13 +55,16 @@ public class Square extends Shape {
             width = Width;
             height = Height;
 
-            /* change squareCoords (indices 2,5,8,11 are for the z axis which is always 0) */
+            /* change xyCords (indices 2,5,8,11 are for the z axis which is always 0)
+            *  Note this ignores rotation, which is not currently supported. */
             float dx = Width / 2.0f;
             float dy = Height / 2.0f;
-            squareCoords[0] = squareCoords[3] = -dx;
-            squareCoords[6] = squareCoords[9] = dx;
-            squareCoords[1] = squareCoords[10] = dy;
-            squareCoords[4] = squareCoords[7] = -dy;
+            xyCords[0] = xyCords[3] = -dx;
+            xyCords[6] = xyCords[9] = dx;
+            xyCords[1] = xyCords[10] = dy;
+            xyCords[4] = xyCords[7] = -dy;
+
+            setTopAndBottom();
             return true;
         }
         return false;
@@ -70,10 +73,10 @@ public class Square extends Shape {
     /* Build the vertexBuffer and drawListBuffer to be used in the Draw function */
     public void buildVertices(){
         /* initialize vertex byte buffer for shape coordinates (# of coordinate values * 4 bytes per float) */
-        ByteBuffer bb = ByteBuffer.allocateDirect(squareCoords.length * 4);
+        ByteBuffer bb = ByteBuffer.allocateDirect(xyCords.length * 4);
         bb.order(ByteOrder.nativeOrder());
         vertexBuffer = bb.asFloatBuffer();
-        vertexBuffer.put(squareCoords);
+        vertexBuffer.put(xyCords);
         vertexBuffer.position(0);
 
         /* initialize byte buffer for the draw list (# coords * 2 bytes per short) */
@@ -95,7 +98,14 @@ public class Square extends Shape {
     }
 
     /* checks for collision with a Square object */
-    public boolean hasCollision(Square square) {
+    public boolean hasCollision(Rectangle rectangle) {
         return false;
+    }
+
+    /* Update the top and bottom to the appropriate corner of the rectangle
+    *  Note that this currently does not support rotations. */
+    public void setTopAndBottom(){
+        top = xyCords [6];
+        bottom = xyCords[4];
     }
 }

@@ -11,10 +11,17 @@ package oss2016.pixelforts;
 public abstract class Shape {
     protected float centerX;
     protected float centerY;
+    protected float top;
+    protected float bottom;
+
+    public float getTop(){ return top; }
+    public float getBottom(){ return bottom;}
 
     public Shape(){
         centerX = 0.0f;
         centerY = 0.0f;
+        top = 1.0f;
+        bottom = 1.0f;
     }
 
     public Shape(float X, float Y){
@@ -55,7 +62,7 @@ public abstract class Shape {
     }
 
     /* build the vertices for derived classes so they can be drawn */
-    public void buildVertices(){}
+    public abstract void buildVertices();
 
     /* draw the object */
     public abstract void Draw();
@@ -64,5 +71,8 @@ public abstract class Shape {
     public abstract boolean hasCollision(Circle circle);
 
     /* checks for collision with a Square object */
-    public abstract boolean hasCollision(Square square);
+    public abstract boolean hasCollision(Rectangle rectangle);
+
+    /* require any derived class to properly update the top and bottom values */
+    public abstract void setTopAndBottom();
 }

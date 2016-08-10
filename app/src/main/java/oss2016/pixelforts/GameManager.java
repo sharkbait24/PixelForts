@@ -52,6 +52,9 @@ class GMGLRenderer implements GLSurfaceView.Renderer {
     private static int vertexShader;
     private static int fragmentShader;
 
+    public static int getVertexShader() { return vertexShader; }
+    public static int getFragmentShader() { return fragmentShader; }
+
     /* generic shader code for all objects */
     private final String vertexShaderCode =
             "attribute vec4 vPosition;" +
@@ -70,15 +73,6 @@ class GMGLRenderer implements GLSurfaceView.Renderer {
 
         vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
         fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
-    }
-
-
-    public static int getVertexShader() {
-        return vertexShader;
-    }
-
-    public static int getFragmentShader() {
-        return fragmentShader;
     }
 
     /* loads and compiles a shader to be used in an OpenGL environment */

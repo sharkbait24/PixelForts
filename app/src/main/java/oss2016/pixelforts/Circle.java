@@ -27,6 +27,8 @@ public class Circle extends Shape{
     public boolean setDimensions(float Radius){
         if (radius > 0.0f){
             radius = Radius;
+
+            setTopAndBottom();
             return true;
         }
         return false;
@@ -48,7 +50,13 @@ public class Circle extends Shape{
     }
 
     /* checks for collision with a Square object */
-    public boolean hasCollision(Square square){
+    public boolean hasCollision(Rectangle rectangle){
         return false;
+    }
+
+    /* Update the top and bottom to the radius from the center */
+    public void setTopAndBottom(){
+        top = centerY + radius;
+        bottom = centerY - radius;
     }
 }
