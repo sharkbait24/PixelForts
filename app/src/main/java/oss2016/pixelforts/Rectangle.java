@@ -32,8 +32,7 @@ public class Rectangle extends Transform {
     public Rectangle() {
         super();
 
-        width = 1.0f;
-        height = 1.0f;
+        setDimensions(1.0f, 1.0f);
     }
 
     public Rectangle(float CenterX, float CenterY, float Width, float Height){
@@ -41,10 +40,8 @@ public class Rectangle extends Transform {
 
         if (!setDimensions(Width, Height))
         { /* use default xyCords values */
-            width = 1.0f;
-            height = 1.0f;
+            setDimensions(1.0f, 1.0f);
         }
-        buildVertices();
     }
 
     /* adds a renderer to be able to draw the rectangle */
@@ -132,6 +129,7 @@ class RectangleRenderer{
         vertexCount = xyCoords.length / Rectangle.COORDS_PER_VERTEX;
         vertexStride = Rectangle.COORDS_PER_VERTEX * 4;
         glProgram = GMGLRenderer.getGlProgram();
+        buildVertices(xyCoords);
     }
 
     public void setColor(float [] Color){
