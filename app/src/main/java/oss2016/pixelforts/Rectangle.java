@@ -9,7 +9,7 @@ import java.nio.ShortBuffer;
    This program is available under the "MIT" license.
    Please see the COPYING file for license information.
 
-   The square class will be used for all of the land and fort objects
+   The rectangle class will be used for all of the land and fort objects
    in the game.  General collision detection and transformations done in this class.
 
    All of the rendering code was taken from Google's Android Developer Training
@@ -47,6 +47,7 @@ public class Rectangle extends Transform {
         buildVertices();
     }
 
+    /* adds a renderer to be able to draw the rectangle */
     public int addRenderer(){
         if (renderer != null)
             return 0;
@@ -54,6 +55,7 @@ public class Rectangle extends Transform {
         return 1;
     }
 
+    /* removes an existing renderer */
     public int removeRenderer(){
         if (renderer == null)
             return 0;

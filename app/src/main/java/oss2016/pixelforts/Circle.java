@@ -59,4 +59,14 @@ public class Circle extends Transform {
         top = centerY + radius;
         bottom = centerY - radius;
     }
+
+    /* adds a renderer to be able to draw the object */
+    public int addRenderer(){
+        return 1;
+    }
+
+    /* removes an existing renderer */
+    public int removeRenderer(){
+        return 1;
+    }
 }

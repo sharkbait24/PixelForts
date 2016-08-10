@@ -74,4 +74,10 @@ public abstract class Transform {
 
     /* require any derived class to properly update the top and bottom values */
     public abstract void setTopAndBottom();
+
+    /* adds a renderer to be able to draw the object */
+    public abstract int addRenderer();
+
+    /* removes an existing renderer */
+    public abstract int removeRenderer();
 }
