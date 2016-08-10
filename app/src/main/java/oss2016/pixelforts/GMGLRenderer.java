@@ -12,26 +12,25 @@ import javax.microedition.khronos.opengles.GL10;
    Please see the COPYING file for license information.
 
    Handles the Rendering of objects using a single vertex and fragment shader
-
+   This class performs the camera position calculations and generates the
+   MVP matrix that is used for all of the object's draw calls.  The drawing of
+   each frame is also handled here.
 
    All rendering code comes from Google's Android Developer Training
    <https://developer.android.com/training/graphics/opengl/index.html>.
 */
 public class GMGLRenderer implements GLSurfaceView.Renderer{
+    private RenderQueue renderQueue;
     private static int vertexShader;
     private static int fragmentShader;
     private static int glProgram; /* attaches vertex and fragment shaders and is used to render objects */
 
-    public static int getVertexShader() { return vertexShader; }
-    public static int getFragmentShader() { return fragmentShader; }
     public static int getGlProgram() {return glProgram; }
 
     /* mMVPMatrix is an abbreviation for "Model View Projection Matrix" */
     private final float[] mMVPMatrix = new float[16];
     private final float[] mProjectionMatrix = new float[16];
     private final float[] mViewMatrix = new float[16];
-
-    Rectangle testRec;
 
     /* generic shader code for all objects */
     private final String vertexShaderCode =
@@ -46,6 +45,11 @@ public class GMGLRenderer implements GLSurfaceView.Renderer{
                     "void main() {" +
                     "   gl_FragColor = vColor;" +
                     "}";
+
+    public GMGLRenderer(){
+        super();
+        renderQueue = new RenderQueue(mMVPMatrix);
+    }
 
     /* loads and compiles a shader to be used in an OpenGL environment */
     public static int loadShader(int type, String shaderCode){
@@ -71,9 +75,6 @@ public class GMGLRenderer implements GLSurfaceView.Renderer{
         GLES20.glAttachShader(glProgram, vertexShader);     /* add the vertex shader to program */
         GLES20.glAttachShader(glProgram, fragmentShader);   /* add fragment shader */
         GLES20.glLinkProgram(glProgram);                    /* creates OpenGL ES program executables */
-
-        testRec = new Rectangle();
-        testRec.addRenderer();
     }
 
     public void onDrawFrame(GL10 unused) {
@@ -86,7 +87,8 @@ public class GMGLRenderer implements GLSurfaceView.Renderer{
         /* Calculate the projection and view transformation */
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
 
-        testRec.Draw(mMVPMatrix);
+        /* Draw all objects in the RenderQueue */
+        renderQueue.DrawAll();
     }
 
     public void onSurfaceChanged(GL10 unused, int width, int height) {

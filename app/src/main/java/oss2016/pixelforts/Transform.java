@@ -12,9 +12,13 @@ public abstract class Transform {
     protected float centerY;
     protected float top;
     protected float bottom;
+    protected boolean needsUpdate;
+    protected boolean needsRedrawn;
 
     public float getTop(){ return top; }
     public float getBottom(){ return bottom;}
+    public boolean isNeedsUpdate() { return needsUpdate; }
+    public boolean isNeedsRedrawn() { return needsRedrawn; }
 
     public Transform(){
         centerX = 0.0f;
