@@ -59,7 +59,7 @@ public class RenderQueue {
         while (current != null){
             if (current.Object != null) {
                 current.Object.Draw(mMVPMatrix);
-                if (current.Object.needsRedrawn){
+                if (current.Object.NeedsRedrawn()){
                     previous = current;
                     current = current.Next;
                     continue;

@@ -6,6 +6,9 @@ package oss2016.pixelforts;
  */
 public class Circle extends Transform {
     float radius;
+    private boolean needsRedrawn;
+
+    public boolean NeedsRedrawn() { return needsRedrawn; }
 
     public Circle(){
         super();
@@ -28,7 +31,8 @@ public class Circle extends Transform {
         if (radius > 0.0f){
             radius = Radius;
 
-            setTopAndBottom();
+            buildVertices();
+            setBounds();
             return true;
         }
         return false;
@@ -36,12 +40,12 @@ public class Circle extends Transform {
 
     /* Build the vertexBuffer and drawListBuffer to be used in the Draw function */
     public void buildVertices(){
-
+        needsRedrawn = true;
     }
 
     /* Draw the Square */
     public void Draw(float[] mvpMatrix){
-
+        needsRedrawn = false;
     }
 
     /* checks for collision with a Circle object */
@@ -54,10 +58,9 @@ public class Circle extends Transform {
         return false;
     }
 
-    /* Update the top and bottom to the radius from the center */
-    public void setTopAndBottom(){
-        top = centerY + radius;
-        bottom = centerY - radius;
+    /* Update the transform's bounds */
+    public void setBounds(){
+        super.setBounds(CenterY() + radius, CenterY() - radius, CenterX() - radius, CenterX() + radius);
     }
 
     /* adds a renderer to be able to draw the object */

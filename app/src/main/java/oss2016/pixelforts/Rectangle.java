@@ -21,6 +21,9 @@ public class Rectangle extends Transform {
     private float width;
     private float height;
     private RectangleRenderer renderer;
+    private boolean needsRedrawn;
+
+    public boolean NeedsRedrawn() { return needsRedrawn; }
 
     static final int COORDS_PER_VERTEX = 3; /* OpenGL renders in 3D, but only the first two are used in this game */
     private float xyCords[] = {
@@ -49,6 +52,7 @@ public class Rectangle extends Transform {
         if (renderer != null)
             return 0;
         renderer = new RectangleRenderer(xyCords);
+        buildVertices();
         return 1;
     }
 
@@ -57,6 +61,7 @@ public class Rectangle extends Transform {
         if (renderer == null)
             return 0;
         renderer = null;
+        needsRedrawn = false;
         return 1;
     }
 
@@ -70,12 +75,13 @@ public class Rectangle extends Transform {
             * Note rotations are not currently supported*/
             float dx = Width / 2.0f;
             float dy = Height / 2.0f;
-            xyCords[0] = xyCords[3] = centerX - dx;
-            xyCords[6] = xyCords[9] = centerX + dx;
-            xyCords[1] = xyCords[10] = centerY + dy;
-            xyCords[4] = xyCords[7] = centerY - dy;
+            xyCords[0] = xyCords[3] = CenterX() - dx;
+            xyCords[6] = xyCords[9] = CenterX() + dx;
+            xyCords[1] = xyCords[10] = CenterY() + dy;
+            xyCords[4] = xyCords[7] = CenterY() - dy;
 
-            setTopAndBottom();
+            buildVertices(); /* make the vertices for rendering match the changes */
+            setBounds(); /* update transform's bounds */
             return true;
         }
         return false;
@@ -83,14 +89,20 @@ public class Rectangle extends Transform {
 
     /* Build the vertexBuffer and drawListBuffer to be used in the Draw function */
     public void buildVertices(){
-        if (renderer != null)
+        if (renderer != null) {
             renderer.buildVertices(xyCords);
+            needsRedrawn = true;
+        }
     }
 
     /* Draw the Square */
     public void Draw(float[] mvpMatrix){
-        if (renderer != null)
+        if (renderer != null) {
             renderer.Draw(mvpMatrix);
+            needsRedrawn = !IsMoving(); /* if still moving this needs to be rendered again next frame */
+        }
+        else
+            needsRedrawn = false;
     }
 
     /* checks for collision with a Circle object */
@@ -105,9 +117,8 @@ public class Rectangle extends Transform {
 
     /* Update the top and bottom to the appropriate corner of the rectangle
     *  Note that this currently does not support rotations. */
-    public void setTopAndBottom(){
-        top = xyCords [1];
-        bottom = xyCords [4];
+    private void setBounds(){
+        super.setBounds(xyCords[1], xyCords[4], xyCords[0], xyCords[6]);
     }
 }
 
@@ -117,7 +128,7 @@ class RectangleRenderer{
     private FloatBuffer vertexBuffer;
     private ShortBuffer drawListBuffer;
     private short drawOrder[] = {0, 1, 2, 0, 2, 3};
-    private float [] color = {0.5f, 0.5f, 0.5f, 0.0f};
+    private float [] color = {0.5f, 0.5f, 0.5f, 1.0f}; /* R,G,B,A */
 
     private int mPositionHandle;
     private int mColorHandle;
@@ -130,14 +141,14 @@ class RectangleRenderer{
         vertexCount = xyCoords.length / Rectangle.COORDS_PER_VERTEX;
         vertexStride = Rectangle.COORDS_PER_VERTEX * 4;
         glProgram = GMGLRenderer.getGlProgram();
-        buildVertices(xyCoords);
     }
 
+    /* Red, green, blue and alpha (opacity) values */
     public void setColor(float [] Color){
         if (Color == null)
             return;
 
-        for (int i = 0; i < Color.length; ++i)
+        for (int i = 0; i < Color.length && i < 4; ++i)
             color[i] = Color[i];
     }
 
