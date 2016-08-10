@@ -4,11 +4,10 @@ package oss2016.pixelforts;
    This program is available under the "MIT" license.
    Please see the COPYING file for license information.
 
-    This is the base class of all of the objects in games
-    so that they can easily determine distance from each other
-    for collision detection.
+    This is the base class of all of the objects in the game for
+    easy distance comparisons for collision detection.
 */
-public abstract class Shape {
+public abstract class Transform {
     protected float centerX;
     protected float centerY;
     protected float top;
@@ -17,14 +16,14 @@ public abstract class Shape {
     public float getTop(){ return top; }
     public float getBottom(){ return bottom;}
 
-    public Shape(){
+    public Transform(){
         centerX = 0.0f;
         centerY = 0.0f;
         top = 1.0f;
         bottom = 1.0f;
     }
 
-    public Shape(float X, float Y){
+    public Transform(float X, float Y){
         MoveTo(X, Y);
     }
 
@@ -41,7 +40,7 @@ public abstract class Shape {
     }
 
     /* calculate the distance between the center of this shape and another */
-    public float Distance(Shape shape){
+    public float Distance(Transform shape){
         return Distance(shape.centerX, shape.centerY);
     }
 

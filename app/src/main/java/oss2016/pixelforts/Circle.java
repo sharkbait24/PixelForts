@@ -4,7 +4,7 @@ package oss2016.pixelforts;
    This program is available under the "MIT" license.
    Please see the COPYING file for license information..
  */
-public class Circle extends Shape{
+public class Circle extends Transform {
     float radius;
 
     public Circle(){

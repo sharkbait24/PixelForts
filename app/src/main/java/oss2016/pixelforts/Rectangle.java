@@ -10,32 +10,29 @@ import java.nio.ShortBuffer;
    Please see the COPYING file for license information.
 
    The square class will be used for all of the land and fort objects
-   in the game.  General collision detection and rendering is done in this
-   class.
+   in the game.  General collision detection and transformations done in this class.
 
    All of the rendering code was taken from Google's Android Developer Training
    <https://developer.android.com/training/graphics/opengl/index.html>.
  */
-public class Rectangle extends Shape {
+public class Rectangle extends Transform {
     private float width;
     private float height;
+    private RectangleRenderer renderer;
 
-    /* for OpenGL rendering */
-    private FloatBuffer vertexBuffer;
-    private ShortBuffer drawListBuffer;
     static final int COORDS_PER_VERTEX = 3; /* OpenGL renders in 3D, but only the first two are used in this game */
     private float xyCords[] = {
             -0.5f, 0.5f, 0.0f,      /* top left */
             -0.5f, -0.5f, 0.0f,     /* bottom left */
             0.5f, -0.5f, 0.0f,      /* bottom right */
             0.5f, 0.5f, 0.0f };     /* top right */
-    private short drawOrder[] = {0, 1, 2, 0, 2, 3};
 
     public Rectangle() {
         super();
 
         width = 1.0f;
         height = 1.0f;
+        renderer = new RectangleRenderer();
     }
 
     public Rectangle(float CenterX, float CenterY, float Width, float Height){
@@ -46,7 +43,22 @@ public class Rectangle extends Shape {
             width = 1.0f;
             height = 1.0f;
         }
+        renderer = new RectangleRenderer();
         buildVertices();
+    }
+
+    public int addRenderer(){
+        if (renderer != null)
+            return 0;
+        renderer = new RectangleRenderer();
+        return 1;
+    }
+
+    public int removeRenderer(){
+        if (renderer == null)
+            return 0;
+        renderer = null;
+        return 1;
     }
 
     /* Sets the width and height */
@@ -56,7 +68,7 @@ public class Rectangle extends Shape {
             height = Height;
 
             /* change xyCords (indices 2,5,8,11 are for the z axis which is always 0)
-            *  Note this ignores rotation, which is not currently supported. */
+            * Note rotations are not currently supported*/
             float dx = Width / 2.0f;
             float dy = Height / 2.0f;
             xyCords[0] = xyCords[3] = -dx;
@@ -72,6 +84,45 @@ public class Rectangle extends Shape {
 
     /* Build the vertexBuffer and drawListBuffer to be used in the Draw function */
     public void buildVertices(){
+        if (renderer != null)
+            renderer.buildVertices(xyCords);
+    }
+
+    /* Draw the Square */
+    public void Draw(){
+        if (renderer != null)
+            renderer.Draw();
+    }
+
+    /* checks for collision with a Circle object */
+    public boolean hasCollision(Circle circle){
+        return false;
+    }
+
+    /* checks for collision with a Square object */
+    public boolean hasCollision(Rectangle rectangle) {
+        return false;
+    }
+
+    /* Update the top and bottom to the appropriate corner of the rectangle
+    *  Note that this currently does not support rotations. */
+    public void setTopAndBottom(){
+        top = xyCords [1];
+        bottom = xyCords [4];
+    }
+}
+
+/* Handles the vertex points and rendering for the Rectangle class*/
+class RectangleRenderer{
+    /* for OpenGL rendering */
+    private FloatBuffer vertexBuffer;
+    private ShortBuffer drawListBuffer;
+    private short drawOrder[] = {0, 1, 2, 0, 2, 3};
+
+    int test = GMGLRenderer.getGlProgram();
+
+    /* Build the vertexBuffer and drawListBuffer to be used in the Draw function */
+    public void buildVertices(float [] xyCords){
         /* initialize vertex byte buffer for shape coordinates (# of coordinate values * 4 bytes per float) */
         ByteBuffer bb = ByteBuffer.allocateDirect(xyCords.length * 4);
         bb.order(ByteOrder.nativeOrder());
@@ -90,22 +141,5 @@ public class Rectangle extends Shape {
     /* Draw the Square */
     public void Draw(){
 
-    }
-
-    /* checks for collision with a Circle object */
-    public boolean hasCollision(Circle circle){
-        return false;
-    }
-
-    /* checks for collision with a Square object */
-    public boolean hasCollision(Rectangle rectangle) {
-        return false;
-    }
-
-    /* Update the top and bottom to the appropriate corner of the rectangle
-    *  Note that this currently does not support rotations. */
-    public void setTopAndBottom(){
-        top = xyCords [6];
-        bottom = xyCords[4];
     }
 }
