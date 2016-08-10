@@ -40,7 +40,7 @@ public class Circle extends Transform {
     }
 
     /* Draw the Square */
-    public void Draw(){
+    public void Draw(float[] mvpMatrix){
 
     }
 

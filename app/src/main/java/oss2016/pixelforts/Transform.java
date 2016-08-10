@@ -64,7 +64,7 @@ public abstract class Transform {
     public abstract void buildVertices();
 
     /* draw the object */
-    public abstract void Draw();
+    public abstract void Draw(float[] mvpMatrix);
 
     /* checks for collision with a Circle object */
     public abstract boolean hasCollision(Circle circle);

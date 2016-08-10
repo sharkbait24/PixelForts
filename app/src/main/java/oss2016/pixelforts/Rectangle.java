@@ -88,9 +88,9 @@ public class Rectangle extends Transform {
     }
 
     /* Draw the Square */
-    public void Draw(){
+    public void Draw(float[] mvpMatrix){
         if (renderer != null)
-            renderer.Draw();
+            renderer.Draw(mvpMatrix);
     }
 
     /* checks for collision with a Circle object */
@@ -121,6 +121,7 @@ class RectangleRenderer{
 
     private int mPositionHandle;
     private int mColorHandle;
+    private int mMVPMatrixHandle;
     private static int vertexCount;
     private static int vertexStride;
     private static int glProgram;
@@ -158,7 +159,7 @@ class RectangleRenderer{
     }
 
     /* Draw the Square */
-    public void Draw(){
+    public void Draw(float[] mvpMatrix){
         /* Add program to OpenGL ES environment */
         GLES20.glUseProgram(glProgram);
 
@@ -178,6 +179,12 @@ class RectangleRenderer{
 
         /* set color for drawing the triangles */
         GLES20.glUniform4fv(mColorHandle, 1, color, 0);
+
+        /* Get handle to shape's transformation matrix */
+        mMVPMatrixHandle = GLES20.glGetUniformLocation(glProgram, "uMVPMatrix");
+
+        /* Pass the projection and view transformation to the shader */
+        GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0);
 
         /* Draw the triangles */
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, vertexCount);
