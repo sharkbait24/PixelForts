@@ -52,7 +52,7 @@ public class RenderQueue {
                 else
                     previous.Next = current;
 
-                putFree(temp);
+                addFree(temp);
                 return true;
             }
             previous = current;
@@ -88,13 +88,13 @@ public class RenderQueue {
             else
                 previous.Next = current;
 
-            putFree(toRemove);
+            addFree(toRemove);
         }
     }
 
     /* The free list will hold all of the RenderNodes that were instantiated but not
     currently used.  This will help by limiting the amount of heap allocation calls. */
-    private void putFree(RenderNode toAdd){
+    private void addFree(RenderNode toAdd){
         toAdd.Next = free;
         free = toAdd;
     }
@@ -107,6 +107,12 @@ public class RenderQueue {
         RenderNode temp = free;
         free = free.Next;
         return  temp;
+    }
+
+    /* All the GameManager to empty this list, especially after the game load when hundreds
+        of objects will be in the queue. */
+    public void emptyFreeList(){
+        free = null;
     }
 }
 
