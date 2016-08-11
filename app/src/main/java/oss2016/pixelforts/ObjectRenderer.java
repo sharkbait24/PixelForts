@@ -11,7 +11,7 @@ import java.nio.ShortBuffer;
    This program is available under the "MIT" license.
    Please see the COPYING file for license information.
 
-   The generic object renderer that renders objects by a vertex buffer that makes
+   The generic object renderer that renders objects by a vertex buffer that takes
    triangles with points in a counter clockwise order.
 
    All of the rendering code was taken from Google's Android Developer Training

@@ -10,29 +10,24 @@ package oss2016.pixelforts;
 public abstract class Transform {
     private float centerX;
     private float centerY;
-    private float top;
-    private float bottom;
-    private float left;
-    private float right;
     private boolean needsUpdate;
     private boolean isMoving; /* holds if the object has not finished moving */
+    private Collider collider;
 
     public float CenterX() { return centerX; }
     public float CenterY() { return centerY; }
-    public float Top(){ return top; }
-    public float Bottom(){ return bottom;}
-    public float Left() { return left; }
-    public float Right() { return right; }
     public boolean NeedsUpdate() { return needsUpdate; }
     public boolean IsMoving() {return  isMoving; }
+
+    /* adds a collider to the object for collision detection */
+    public void setCollider(Collider toSet){
+        collider = toSet;
+    }
+    public Collider getCollider(){ return collider;}
 
     public Transform(){
         centerX = 0.0f;
         centerY = 0.0f;
-        top = 0.0f;
-        bottom = 0.0f;
-        left = 0.0f;
-        right = 0.0f;
 
         needsUpdate = false;
         isMoving = false;
@@ -40,10 +35,6 @@ public abstract class Transform {
 
     public Transform(float X, float Y){
         SetCenter(X, Y);
-        top = 0.0f;
-        bottom = 0.0f;
-        left = 0.0f;
-        right = 0.0f;
 
         needsUpdate = false;
         isMoving = false;
@@ -60,14 +51,6 @@ public abstract class Transform {
     public void SetCenter(float CenterX, float CenterY){
         centerX = CenterX;
         centerY = CenterY;
-    }
-
-    /* set the two primary */
-    public void setBounds(float Top, float Bottom, float Left, float Right){
-        top = Top;
-        bottom = Bottom;
-        left = Left;
-        right = Right;
     }
 
     /* calculate the distance between the center of this shape and another */
@@ -89,14 +72,13 @@ public abstract class Transform {
         return false;
     }
 
-    /* checks for collision with a Circle object */
-    public boolean hasCollision(Circle circle){
-        return false;
-    }
 
-    /* checks for collision with a Square object */
-    public boolean hasCollision(Rectangle rectangle){
-        return false;
+
+    /* checks for collision with another transform's collider */
+    public boolean hasCollision(Transform toCheck){
+        if (collider == null || toCheck.collider == null)
+            return false;
+        return collider.hasCollision(toCheck.collider);
     }
 
     /* build the vertices for derived classes so they can be drawn */
@@ -113,4 +95,10 @@ public abstract class Transform {
 
     /* removes an existing renderer */
     public abstract int removeRenderer();
+
+    /* Returns the bounds of the object */
+    public abstract float Top();
+    public abstract float Bottom();
+    public abstract float Left();
+    public abstract float Right();
 }

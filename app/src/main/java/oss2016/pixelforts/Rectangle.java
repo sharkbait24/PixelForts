@@ -4,17 +4,14 @@ package oss2016.pixelforts;
    This program is available under the "MIT" license.
    Please see the COPYING file for license information.
 
-   The rectangle class will be used for all of the land and fort objects
-   in the game.
-
-   All of the rendering code was taken from Google's Android Developer Training
-   <https://developer.android.com/training/graphics/opengl/index.html>.
+   The rectangle class will be used for all of the land pieces in the game
  */
 public class Rectangle extends Transform {
     private float width;
     private float height;
     private RectangleRenderer renderer;
     private boolean needsRedrawn;
+    private Collider collider;
 
     public boolean NeedsRedrawn() { return needsRedrawn; }
 
@@ -51,6 +48,12 @@ public class Rectangle extends Transform {
         return 1;
     }
 
+    /* adds a collider to the object for collision detection */
+    public void setCollider(Collider toSet){
+        super.setCollider(toSet);
+        collider = toSet;
+    }
+
     /* Sets the width and height */
     public boolean setDimensions(float Width, float Height){
         if (Height > 0.0f && Width > 0.0f) {
@@ -62,7 +65,8 @@ public class Rectangle extends Transform {
                 renderer.buildVertices();
                 needsRedrawn = true;
             }
-            setBounds(); /* update transform's bounds */
+            if (collider != null)
+                collider.setBounds(Width, Height);
             return true;
         }
         return false;
@@ -86,23 +90,25 @@ public class Rectangle extends Transform {
             needsRedrawn = false;
     }
 
-    /* checks for collision with a Circle object */
-    public boolean hasCollision(Circle circle){
-        return false;
+    /* Returns the bounds of the object */
+    public float Top(){
+        if (collider != null)
+            return collider.Top();
+        return CenterY() + height / 2.0f;
     }
-
-    /* checks for collision with a Square object */
-    public boolean hasCollision(Rectangle rectangle) {
-        return false;
+    public float Bottom(){
+        if (collider != null)
+            return collider.Bottom();
+        return CenterY() - height / 2.0f;
     }
-
-    /* Update transform's bounds (top, bottom, left, right)
-    *  This is only used if there is no collider */
-    private void setBounds(){
-        float dx = width / 2.0f;
-        float dy = height / 2.0f;
-        super.setBounds(CenterY() + dy, CenterY() - dy, CenterX() - dx, CenterX() + dx);
+    public float Left(){
+        if (collider != null)
+            return collider.Left();
+        return CenterX() - width / 2.0f;
+    }
+    public float Right(){
+        if (collider != null)
+            return collider.Right();
+        return CenterY() + width / 2.0f;
     }
 }
-
-

@@ -7,6 +7,7 @@ package oss2016.pixelforts;
 public class Circle extends Transform {
     float radius;
     private boolean needsRedrawn;
+    private Collider collider;
 
     public boolean NeedsRedrawn() { return needsRedrawn; }
 
@@ -32,7 +33,8 @@ public class Circle extends Transform {
             radius = Radius;
 
             buildVertices();
-            setBounds();
+            if (collider != null)
+                collider.setBounds(Radius);
             return true;
         }
         return false;
@@ -48,28 +50,41 @@ public class Circle extends Transform {
         needsRedrawn = false;
     }
 
-    /* checks for collision with a Circle object */
-    public boolean hasCollision(Circle circle){
-        return false;
-    }
-
-    /* checks for collision with a Square object */
-    public boolean hasCollision(Rectangle rectangle){
-        return false;
-    }
-
-    /* Update the transform's bounds */
-    public void setBounds(){
-        super.setBounds(CenterY() + radius, CenterY() - radius, CenterX() - radius, CenterX() + radius);
-    }
-
     /* adds a renderer to be able to draw the object */
     public int addRenderer(){
-        return 1;
+        return 0;
     }
 
     /* removes an existing renderer */
     public int removeRenderer(){
-        return 1;
+        return 0;
+    }
+
+    /* adds a collider to the object for collision detection */
+    public void setCollider(Collider toSet){
+        super.setCollider(toSet);
+        collider = toSet;
+    }
+
+    /* Returns the bounds of the object */
+    public float Top(){
+        if (collider != null)
+            return collider.Top();
+        return CenterY() + radius;
+    }
+    public float Bottom(){
+        if (collider != null)
+            return collider.Bottom();
+        return CenterY() - radius;
+    }
+    public float Left(){
+        if (collider != null)
+            return collider.Left();
+        return CenterX() - radius;
+    }
+    public float Right(){
+        if (collider != null)
+            return collider.Right();
+        return CenterY() + radius;
     }
 }
