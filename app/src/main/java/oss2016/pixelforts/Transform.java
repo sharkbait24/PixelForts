@@ -22,6 +22,7 @@ public abstract class Transform {
     /* adds a collider to the object for collision detection */
     public void setCollider(Collider toSet){
         collider = toSet;
+        collider.setTransform(this);
     }
     public Collider getCollider(){ return collider;}
 
@@ -52,6 +53,8 @@ public abstract class Transform {
         centerX = CenterX;
         centerY = CenterY;
     }
+
+
 
     /* calculate the distance between the center of this shape and another */
     public float Distance(Transform from){ return Distance(from.centerX, from.centerY); }
@@ -93,6 +96,9 @@ public abstract class Transform {
 
     /* removes an existing renderer */
     public abstract int removeRenderer();
+
+    /* set the color of the renderer */
+    public abstract void setColor(float red, float green, float blue, float alpha);
 
     /* Returns the bounds of the object */
     public abstract float Top();

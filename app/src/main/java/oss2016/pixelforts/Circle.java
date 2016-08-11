@@ -60,6 +60,11 @@ public class Circle extends Transform {
         return 0;
     }
 
+    /* set the color of the renderer */
+    public void setColor(float red, float green, float blue, float alpha){
+
+    }
+
     /* adds a collider to the object for collision detection */
     public void setCollider(Collider toSet){
         super.setCollider(toSet);

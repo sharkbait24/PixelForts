@@ -32,18 +32,35 @@ public class Fort extends Transform{
     /* create the rectangles if not done yet and position them and set their dimensions
     * The rectangles are [0] main keep, [1] right tower, [2] left tower*/
     private void setupFort(float Width, float Height){
+        if (Width < 0 || Height < 0)
+            return;
+
         if (rectangles == null) {
             rectangles = new Rectangle[3];
             Collider[] colliders = new Collider[3]; /* colliders for each rectangle */
             for (int i = 0; i < rectangles.length; ++i) {
+                rectangles[i] = new Rectangle();
                 colliders[i] = new BoxCollider();
                 rectangles[i].setCollider(colliders[i]);
+                rectangles[i].addRenderer();
+                rectangles[i].setColor(1.0f, .2f, .2f, 0.0f);
             }
             Collider temp = new CompoundCollider(colliders); /* compound collider for Fort */
             setCollider(temp);
         }
 
+        height = Height;
+        width = Width;
 
+        /* calculate the new offsets for the rectangles */
+        rectangles[0].SetCenter(CenterX(), CenterY() - .1f * height);
+        rectangles[1].SetCenter(CenterX() - .35f * width, CenterY() + .4f * height);
+        rectangles[2].SetCenter(CenterX() + .35f * width, CenterY() + .4f * height);
+
+        /* set the appropriate dimensions, which recalculates the vertices and collider */
+        rectangles[0].setDimensions(Width, .8f * Height);
+        rectangles[1].setDimensions(0.3f * Width, .2f * Height);
+        rectangles[2].setDimensions(0.3f * Width, .2f * Height);
         needsRedrawn = true;
     }
 
@@ -67,6 +84,13 @@ public class Fort extends Transform{
                 result = 0;
         }
         return result;
+    }
+
+    /* set the color of the renderers */
+    public void setColor(float red, float green, float blue, float alpha){
+        for(int i = 0; i < rectangles.length; ++i){
+            rectangles[i].setColor(red, green, blue, alpha);
+        }
     }
 
     /* adds a collider to the object for collision detection

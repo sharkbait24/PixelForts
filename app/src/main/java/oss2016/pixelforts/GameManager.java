@@ -29,6 +29,9 @@ public class GameManager extends AppCompatActivity {
         gmView = new GMGLSurfaceView(this);
         setContentView(gmView);
 
+        players = new Fort[5];
+        for (int i = 0; i < 5; ++i)
+            players[i] = new Fort();
         scene = new Scene(players);
     }
 }

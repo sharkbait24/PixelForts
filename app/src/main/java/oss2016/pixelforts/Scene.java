@@ -16,17 +16,19 @@ public class Scene {
 
     public Scene (Fort[] players){
         renderQueue = GMGLRenderer.getRenderQueue();
-        generateLand();
+        buildRegions(17);
+        generateLand(85);
+        placePlayers(players);
     }
 
     /* Some random weights applied to a sin curve to make the "rolling hills" style */
-    private void generateLand(){
+    private void generateLand(int numLand){
         Random rand = new Random();
         float x = -2.0f;
         float random = (float)(Math.abs(rand.nextInt()) % 150) / 100.0f + 1.0f;
         float modX = x;
         float height;
-        land = new Land[85];
+        land = new Land[numLand];
         for (int i = 0; i < land.length; ++i){
             land[i] = new Land();
             land[i].addRenderer();
@@ -35,11 +37,45 @@ public class Scene {
             }
             height = 0.75f + (float) (Math.sin(2.0f * modX) / 1.5f);
             land[i].SetCenter(x, -1.0f + height / 2.0f);
-            land[i].setDimensions(0.05f, height);
             land[i].setCollider(new BoxCollider());
+            land[i].setDimensions(0.05f, height);
             x += 0.05f;
             modX = modX + 0.05f * random;
             renderQueue.Add(land[i]);
+            for (int j = 0; j < regions.length; ++j){ /* possible for a piece to be in multiple regions */
+                if (land[i].Right() < regions[j].left)
+                    regions[j].add(land[i]);
+            }
+        }
+    }
+
+    /* Place the player forts on the land */
+    private void placePlayers(Fort[] players){
+        int space = land.length / (players.length + 1);
+        int index = 0;
+        Random rand = new Random();
+        int random = Math.abs(rand.nextInt()) % space / space + space;
+        for (int i = 0; i < players.length; ++i) {
+            index += random;
+            players[i].SetCenter(land[index].CenterX(), land[index].Top() + .15f);
+            players[i].setDimensions(.2f, .3f);
+            random = Math.abs(rand.nextInt()) % space / space + space;
+            renderQueue.Add(players[i]);
+        }
+    }
+
+    /* setup the regions and their horizontal spans */
+    private void buildRegions(int numRegions){
+        float space = 4.0f / numRegions; /* OpenGL screen goes from -2 to 2 */
+        regions = new Region[numRegions];
+        float right = -2.0f;
+        float left = right + space;
+        for (int i = 0; i < numRegions; ++i){
+            regions[i] = new Region();
+            regions[i].left = left;
+            regions[i].right = right;
+            right = left;
+            left = left + space;
         }
     }
 }
