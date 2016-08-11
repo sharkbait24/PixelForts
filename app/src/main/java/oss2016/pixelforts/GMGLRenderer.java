@@ -20,12 +20,13 @@ import javax.microedition.khronos.opengles.GL10;
    <https://developer.android.com/training/graphics/opengl/index.html>.
 */
 public class GMGLRenderer implements GLSurfaceView.Renderer{
-    private RenderQueue renderQueue;
+    private static RenderQueue renderQueue;
     private static int vertexShader;
     private static int fragmentShader;
     private static int glProgram; /* attaches vertex and fragment shaders and is used to render objects */
 
     public static int getGlProgram() {return glProgram; }
+    public static RenderQueue getRenderQueue() {return renderQueue; }
 
     /* mMVPMatrix is an abbreviation for "Model View Projection Matrix" */
     private final float[] mMVPMatrix = new float[16];
@@ -87,7 +88,7 @@ public class GMGLRenderer implements GLSurfaceView.Renderer{
         /* Calculate the projection and view transformation */
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
 
-        /* Draw all objects in the RenderQueue */
+        /* Draw all objects in the queue */
         renderQueue.DrawAll();
     }
 

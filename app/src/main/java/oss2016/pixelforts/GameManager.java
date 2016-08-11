@@ -5,9 +5,6 @@ import android.opengl.GLSurfaceView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-import javax.microedition.khronos.opengles.GL10;
-import javax.microedition.khronos.egl.EGLConfig;
-
 /* Copyright (c) 2016 Joe Coleman
    This program is available under the "MIT" license.
    Please see the COPYING file for license information.
@@ -19,7 +16,9 @@ import javax.microedition.khronos.egl.EGLConfig;
 */
 public class GameManager extends AppCompatActivity {
     private GLSurfaceView gmView;
-    private Transform[] map;
+    private Fort[] players;
+    private Scene scene; /* holds references to all object in the scene */
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +28,8 @@ public class GameManager extends AppCompatActivity {
         // as the ContentView for this Activity.
         gmView = new GMGLSurfaceView(this);
         setContentView(gmView);
+
+        scene = new Scene(players);
     }
 }
 

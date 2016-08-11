@@ -72,8 +72,6 @@ public abstract class Transform {
         return false;
     }
 
-
-
     /* checks for collision with another transform's collider */
     public boolean hasCollision(Transform toCheck){
         if (collider == null || toCheck.collider == null)

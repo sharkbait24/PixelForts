@@ -9,9 +9,9 @@ package oss2016.pixelforts;
    If it doesn't, the object is removed from the render queue.
  */
 public class RenderQueue {
-    private RenderNode head;
-    private RenderNode tail;
-    private RenderNode free; /* free RenderNode list */
+    private Node head;
+    private Node tail;
+    private Node free; /* free RenderNode list */
     private float[] mMVPMatrix;
 
     public RenderQueue(float[] MMVPMatrix){
@@ -23,40 +23,44 @@ public class RenderQueue {
         if (toAdd == null)
             return;
 
-        RenderNode temp;
+        Node temp;
         if (free != null) {
             temp = nextFree();
-            temp.Object = toAdd;
+            temp.object = toAdd;
         }
         else
-            temp = new RenderNode(toAdd);
+            temp = new Node(toAdd);
 
-        if (tail == null)
-            head = tail = temp;
-        else
-            tail.Next = temp;
+        if (tail == null) {
+            head = temp;
+            tail = temp;
+        }
+        else {
+            tail.next = temp;
+            tail = temp;
+        }
     }
 
     public boolean Remove(Transform toRemove){
         if (head == null)
             return false;
 
-        RenderNode current = head;
-        RenderNode previous = null;
+        Node current = head;
+        Node previous = null;
         while (current != null){
-            if (current.Object == toRemove){
-                RenderNode temp = current;
-                current = current.Next;
+            if (current.object == toRemove){
+                Node temp = current;
+                current = current.next;
                 if (previous == null)
                     head = current;
                 else
-                    previous.Next = current;
+                    previous.next = current;
 
                 addFree(temp);
                 return true;
             }
             previous = current;
-            current = current.Next;
+            current = current.next;
         }
         return false;
     }
@@ -68,25 +72,25 @@ public class RenderQueue {
         if (head == null)
             return;
 
-        RenderNode current = head;
-        RenderNode previous = null;
+        Node current = head;
+        Node previous = null;
         while (current != null){
-            if (current.Object != null) {
-                current.Object.Draw(mMVPMatrix);
-                if (current.Object.NeedsRedrawn()){
+            if (current.object != null) {
+                current.object.Draw(mMVPMatrix);
+                if (current.object.NeedsRedrawn()){
                     previous = current;
-                    current = current.Next;
+                    current = current.next;
                     continue;
                 }
 
             }
             /* object needs to be removed */
-            RenderNode toRemove = current;
-            current = current.Next;
+            Node toRemove = current;
+            current = current.next;
             if (previous == null)
                 head = current;
             else
-                previous.Next = current;
+                previous.next = current;
 
             addFree(toRemove);
         }
@@ -94,18 +98,19 @@ public class RenderQueue {
 
     /* The free list will hold all of the RenderNodes that were instantiated but not
     currently used.  This will help by limiting the amount of heap allocation calls. */
-    private void addFree(RenderNode toAdd){
-        toAdd.Next = free;
+    private void addFree(Node toAdd){
+        toAdd.next = free;
         free = toAdd;
+        toAdd.object = null;
     }
 
     /* Remove the first node in the list */
-    private RenderNode nextFree(){
+    private Node nextFree(){
         if (free == null)
             return null;
 
-        RenderNode temp = free;
-        free = free.Next;
+        Node temp = free;
+        free = free.next;
         return  temp;
     }
 
@@ -114,15 +119,22 @@ public class RenderQueue {
     public void emptyFreeList(){
         free = null;
     }
+
+    /* Destroy the entire queue */
+    public void removeAll(){
+        head = null;
+        tail = null;
+        free = null;
+    }
 }
 
 /* Simple struct object to hold the references */
-class RenderNode {
-    public Transform Object;
-    public RenderNode Next;
+class Node {
+    Transform object;
+    Node next;
 
-    public RenderNode(Transform toAdd){
-        Object = toAdd;
-        Next = null;
+    public Node(Transform toAdd){
+        object = toAdd;
+        next = null;
     }
 }
