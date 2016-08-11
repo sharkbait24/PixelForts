@@ -34,8 +34,13 @@ public class Fort extends Transform{
     private void setupFort(float Width, float Height){
         if (rectangles == null) {
             rectangles = new Rectangle[3];
-            for (int i = 0; i < rectangles.length; ++i)
-                rectangles[i].setCollider(new BoxCollider());
+            Collider[] colliders = new Collider[3]; /* colliders for each rectangle */
+            for (int i = 0; i < rectangles.length; ++i) {
+                colliders[i] = new BoxCollider();
+                rectangles[i].setCollider(colliders[i]);
+            }
+            Collider temp = new CompoundCollider(colliders); /* compound collider for Fort */
+            setCollider(temp);
         }
 
 
