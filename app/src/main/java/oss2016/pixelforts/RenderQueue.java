@@ -11,6 +11,7 @@ package oss2016.pixelforts;
 public class RenderQueue {
     private RenderNode head;
     private RenderNode tail;
+    private RenderNode free; /* free RenderNode list */
     private float[] mMVPMatrix;
 
     public RenderQueue(float[] MMVPMatrix){
@@ -19,12 +20,21 @@ public class RenderQueue {
 
     /* Add a new node at the tail */
     public void Add(Transform toAdd){
-        if (tail == null) {
-            head = new RenderNode(toAdd);
-            tail = head;
+        if (toAdd == null)
+            return;
+
+        RenderNode temp;
+        if (free != null) {
+            temp = nextFree();
+            temp.Object = toAdd;
         }
         else
-            tail.Next = new RenderNode(toAdd);
+            temp = new RenderNode(toAdd);
+
+        if (tail == null)
+            head = tail = temp;
+        else
+            tail.Next = temp;
     }
 
     public boolean Remove(Transform toRemove){
@@ -35,10 +45,14 @@ public class RenderQueue {
         RenderNode previous = null;
         while (current != null){
             if (current.Object == toRemove){
+                RenderNode temp = current;
+                current = current.Next;
                 if (previous == null)
-                    head = current.Next;
+                    head = current;
                 else
-                    previous.Next = current.Next;
+                    previous.Next = current;
+
+                putFree(temp);
                 return true;
             }
             previous = current;
@@ -67,12 +81,32 @@ public class RenderQueue {
 
             }
             /* object needs to be removed */
-            if (previous == null)
-                head = current.Next;
-            else
-                previous.Next = current.Next;
+            RenderNode toRemove = current;
             current = current.Next;
+            if (previous == null)
+                head = current;
+            else
+                previous.Next = current;
+
+            putFree(toRemove);
         }
+    }
+
+    /* The free list will hold all of the RenderNodes that were instantiated but not
+    currently used.  This will help by limiting the amount of heap allocation calls. */
+    private void putFree(RenderNode toAdd){
+        toAdd.Next = free;
+        free = toAdd;
+    }
+
+    /* Remove the first node in the list */
+    private RenderNode nextFree(){
+        if (free == null)
+            return null;
+
+        RenderNode temp = free;
+        free = free.Next;
+        return  temp;
     }
 }
 

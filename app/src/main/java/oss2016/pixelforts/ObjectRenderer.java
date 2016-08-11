@@ -134,6 +134,4 @@ class RectangleRenderer extends ObjectRenderer{
     public void Draw(float [] mvpMatrix){
         super.Draw(mvpMatrix, POINTS_PER_VERTEX, glProgram, vertexStride, vertexCount);
     }
-
-
 }
