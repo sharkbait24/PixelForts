@@ -61,12 +61,11 @@ class GameView extends GLSurfaceView implements Runnable{
     private static long fps; /* frame rate for update loop*/
     private long timeThisFrame; /* used to limit that rate update is called */
 
-    private Fort[] players;
+    private Player[] players;
     private int numPlayers = 5;
     private Scene scene; /* holds references to all object in the scene */
-    private RenderQueue renderQueue;
-
-    private Projectile testParticle;
+    private int currentPlayer;
+    private boolean setupPlayer; /* holds if the player has been setup after switching players */
 
     public static long FPS(){ return fps; }
 
@@ -88,10 +87,12 @@ class GameView extends GLSurfaceView implements Runnable{
 
     /* initial game setup */
     private void gameStart() {
-        players = new Fort[numPlayers];
+        players = new Player[numPlayers];
         for (int i = 0; i < numPlayers; ++i)
-            players[i] = new Fort();
+            players[i] = new Human("Player " + (i + 1));
         scene = new Scene(players);
+        currentPlayer = 0;
+        setupPlayer = false;
 
         /* allows the run() thread method to update the game */
         playing = true;
@@ -135,7 +136,13 @@ class GameView extends GLSurfaceView implements Runnable{
         }
 
         else{ /* player logic */
+            if (!setupPlayer){
+                Fort playerFort = players[currentPlayer].Fort();
+                players[currentPlayer].setWeapon(new Weapon(playerFort.CenterX(), playerFort.Top(), 20));
+                setupPlayer = true;
+            }
 
+            
         }
     }
 

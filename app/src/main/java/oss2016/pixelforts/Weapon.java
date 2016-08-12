@@ -9,15 +9,19 @@ package oss2016.pixelforts;
 public class Weapon {
     private float unitX; /* unit vector direction */
     private float unitY;
-    private Projectile projectile;
+    private float centerX; /* position */
+    private float centerY;
+    private int damage;
 
     public float UnitX(){ return unitX;}
     public float UnitY(){ return unitY;}
 
-    public Weapon(Projectile nProjectile){
-        projectile = nProjectile;
-        unitY = 0;
-        unitX = 1;
+    public Weapon(float CenterX, float CenterY, int Damage){
+        damage = Damage;
+        centerX = CenterX;
+        centerY = CenterY;
+        unitY = 1;
+        unitX = 0;
     }
 
     /* calculates directionX and Y*/
@@ -25,13 +29,10 @@ public class Weapon {
 
     }
 
+    /* Create a new projectile in the direction aiming and give it a velocity */
     public Projectile fire(float magnitude){
-        return projectile;
+        Projectile bullet = new Projectile(centerX, centerY, .05f, .05f, damage);
+        bullet.ApplyForce(unitX * magnitude, unitY * magnitude);
+        return bullet;
     }
-
-    public void Update(){
-
-    }
-
-
 }

@@ -23,11 +23,14 @@ public class Scene {
         return true;
     }
 
-    public Scene (Fort[] Players){
+    public Scene (Player[] Players){
         renderQueue = GMGLRenderer.getRenderQueue();
         buildRegions(17);
         generateLand(85);
-        players = Players;
+
+        players = new Fort[Players.length];
+        for (int i = 0; i < Players.length; ++i)
+            players[i] = Players[i].Fort();
         placePlayers();
     }
 
@@ -113,8 +116,12 @@ public class Scene {
         Node prev = null;
         while (current != null){
             current.object.Update();
+            hasCollisions(current.object);
 
             if (current.object.IsDead() || !current.object.IsMoving()){
+                if (current.object.IsDead())
+                    renderQueue.remove(current.object);
+
                 if (prev == null)
                     active = current.next;
                 else
