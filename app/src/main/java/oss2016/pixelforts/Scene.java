@@ -77,11 +77,36 @@ public class Scene {
         }
     }
 
+    /* remove player's for from scene and stop rendering it when destroyed */
+    public void removeFort(Fort toRemove){
+        if (players == null)
+            return;
+
+        for (int i = 0; i < players.length; ++i)
+        {
+            if (players[i] == toRemove)
+            {
+                /* go through the regions and remove all references to the fort */
+                removeFromRegion(players[i]);
+                //renderQueue.remove(players[i]);
+                return;
+            }
+        }
+    }
+
     /* loop through region array and a find all of the regions the transform resides in */
     private void placeInRegion(Transform toAdd){
         for (int i = 0; i < regions.length && toAdd.Left() > regions[i].right; ++i){
             if (toAdd.Right() < regions[i].left)
                 regions[i].add(toAdd);
+        }
+    }
+
+    /* loop through and remove the node from each region it would have been placed in */
+    private void removeFromRegion(Transform toRemove){
+        for (int i = 0; i < regions.length && toRemove.Left() > regions[i].right; ++i){
+            if (toRemove.Right() < regions[i].left)
+                regions[i].Remove(toRemove);
         }
     }
 
@@ -118,16 +143,22 @@ public class Scene {
         Node prev = null;
         while (current != null){
             current.object.Update();
-            hasCollisions(current.object);
+            /* check if object went out of bounds */
+            if (current.object.Left() > 2.0f || current.object.Right() < -2.0f
+                    || current.object.Top() < -1.0f || current.object.Bottom() > 5.0f)
+                current.object.setDead(true);
+            else
+                hasCollisions(current.object);
 
             if (current.object.IsDead() || !current.object.IsMoving()){
                 if (current.object.IsDead())
-                    renderQueue.remove(current.object);
+                    //renderQueue.remove(current.object);
 
                 if (prev == null)
                     active = current.next;
                 else
                     prev.next = current.next;
+                current.object = null;
             }
             else
                 prev = current;

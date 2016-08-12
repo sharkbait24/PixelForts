@@ -30,7 +30,6 @@ public class RenderQueue {
         lock.lock();
         try {
             if (toAdd == null) {
-                lock.unlock();
                 return;
             }
 
@@ -58,7 +57,6 @@ public class RenderQueue {
         lock.lock();
         try {
             if (head == null) {
-                lock.unlock();
                 return false;
             }
 
@@ -76,7 +74,6 @@ public class RenderQueue {
                         previous.next = current;
 
                     addFree(temp);
-                    lock.unlock();
                     return true;
                 }
                 else {
@@ -96,7 +93,6 @@ public class RenderQueue {
         lock.lock();
         try {
             if (head == null) {
-                lock.unlock();
                 return;
             }
 

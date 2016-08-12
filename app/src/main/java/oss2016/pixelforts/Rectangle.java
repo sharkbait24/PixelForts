@@ -94,8 +94,7 @@ public class Rectangle extends Transform {
     /* sadly right now setDimensions is the best way to update everything */
     public void Update(){
         super.Update();
-        if (IsMoving())
-            setDimensions(width, height);
+        setDimensions(width, height);
     }
 
     /* Returns the bounds of the object */

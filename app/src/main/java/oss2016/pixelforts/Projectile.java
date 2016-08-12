@@ -23,13 +23,20 @@ public class Projectile extends Rectangle {
         collider = new CircleCollider();
         super.setCollider(collider);
         super.setDimensions(Width, Height);
+        setHasGravity(true);
     }
 
     public boolean hasCollision(Transform toCheck) {
         if (super.hasCollision(toCheck)) {
             toCheck.dealDamage(damage);
             setDead(true);
+            return true;
         }
         return false;
+    }
+
+    public void destroy(){
+        super.setCollider(null);
+        super.removeRenderer();
     }
 }

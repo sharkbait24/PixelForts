@@ -44,4 +44,9 @@ public abstract class Player {
     public void setWeapon(Weapon active){
         weapon = active;
     }
+
+    public void destroyWeapon(){
+        weapon.destroy();
+        weapon = null;
+    }
 }

@@ -12,6 +12,7 @@ public abstract class Transform {
     private float centerY;
     private boolean isMoving; /* holds if the object has not finished moving */
     private boolean isDead;
+    private boolean hasGravity;
     private Collider collider;
     private float velocityX;
     private float velocityY;
@@ -24,12 +25,16 @@ public abstract class Transform {
     /* adds a collider to the object for collision detection */
     public void setCollider(Collider toSet){
         collider = toSet;
+        if (collider != null)
         collider.setTransform(this);
     }
     public Collider getCollider(){ return collider;}
     public void setDead(boolean val){
         isDead = val;
     }
+    public void setHasGravity(boolean val) { hasGravity = val;}
+
+    public void destroy(){}
 
     public Transform(){
         centerX = 0.0f;
@@ -37,6 +42,7 @@ public abstract class Transform {
 
         isMoving = false;
         isDead = false;
+        hasGravity = false;
     }
 
     public Transform(float X, float Y){
@@ -44,12 +50,13 @@ public abstract class Transform {
 
         isMoving = false;
         isDead = false;
+        hasGravity = false;
     }
 
     /* change center position relative to current position */
     public void ApplyForce(float VelocityX, float VelocityY){
-        velocityX += VelocityX / GameView.FPS();
-        velocityY += VelocityY / GameView.FPS();
+        velocityX += VelocityX;
+        velocityY += VelocityY;
         isMoving = true;
     }
 
@@ -59,8 +66,8 @@ public abstract class Transform {
             return;
         }
 
-        /* gravity */
-        ApplyForce(0.0f, -.001f / (float) GameView.FPS());
+        if (hasGravity)
+            ApplyForce(0.0f, -.0003f);
         SetCenter(centerX + velocityX, centerY + velocityY);
     }
 

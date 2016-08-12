@@ -66,8 +66,8 @@ public class Weapon {
     }
 
     /* Add onto charge value */
-    public void charge(float toAdd){
-        charge += toAdd;
+    public void charge(float toAddPercent){
+        charge += toAddPercent * maxCharge;
         if (charge > maxCharge)
             charge = maxCharge;
 
@@ -76,7 +76,7 @@ public class Weapon {
 
     /* Create a new projectile in the direction aiming and give it a velocity */
     public Projectile fire(){
-        Projectile bullet = new Projectile(centerX, centerY, .05f, .05f, damage);
+        Projectile bullet = new Projectile(centerX + .2f * unitX, centerY + .2f * unitY, .05f, .05f, damage);
         bullet.ApplyForce(unitX * charge, unitY * charge);
         return bullet;
     }
@@ -84,6 +84,7 @@ public class Weapon {
     /* removes the crosshair */
     public void destroy(){
         crosshair.destroy();
+        crosshair = null;
     }
 }
 
@@ -95,12 +96,12 @@ class Crosshair{
     /* the outer lines will change size to show the user how much charge they have generated */
     Rectangle[] outerLines = new Rectangle[4];
     private float defaultSize = 0.1f;
+    private float small = defaultSize / 5.0f;
 
     public Crosshair(Weapon thisWeapon){
         weapon = thisWeapon;
         RenderQueue renderQueue = GMGLRenderer.getRenderQueue();
 
-        float small = defaultSize / 5.0f;
         centerDot = new Rectangle(weapon.CenterX(), weapon.CenterY(), small, small);
         centerDot.addRenderer();
         centerDot.setColor(1.0f, 1.0f, 1.0f, 0.0f);
@@ -133,12 +134,22 @@ class Crosshair{
         outerLines[3].Update();
     }
 
-
+    /* update the outerlines to reflect the percent charged */
     public void showCharge(float percent){
-
+        outerLines[0].setDimensions(defaultSize + percent * defaultSize, small);
+        outerLines[1].setDimensions(small, defaultSize + percent * defaultSize);
+        outerLines[2].setDimensions(defaultSize + percent * defaultSize, small);
+        outerLines[3].setDimensions(small, defaultSize + percent * defaultSize);
     }
 
+    /* remove all of the rectangles from the renderQueue */
     public void destroy(){
+        RenderQueue renderQueue = GMGLRenderer.getRenderQueue();
 
+        renderQueue.remove(centerDot);
+        for (int i = 0; i < outerLines.length; ++i)
+            renderQueue.remove(outerLines[i]);
+        outerLines = null;
+        centerDot = null;
     }
 }

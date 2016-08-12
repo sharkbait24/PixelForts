@@ -125,7 +125,7 @@ class GameView extends GLSurfaceView implements Runnable{
 
             update();
 
-            /* asks GMGLRenderer to run onDraw */
+            /* asks gmRenderer to run onDraw */
             requestRender();
 
             timeThisFrame = SystemClock.uptimeMillis() - startFrameTime;
@@ -150,24 +150,54 @@ class GameView extends GLSurfaceView implements Runnable{
 
         else if (scene.isActive()){ /* keep running the scene until all motion has stopped */
             scene.update();
+
+            /* check for dead players */
+            for (int i = 0; i < numPlayers; ++i){
+                if(players[i].IsDead()){
+                    /* shift down */
+                    Player temp = players[i];
+                    for (int j = i + 1; j < numPlayers; ++j)
+                    {
+                        players[j-1] = players[j];
+                    }
+                    players[numPlayers - 1] = temp;
+                    scene.removeFort(temp.Fort());
+                    --numPlayers;
+
+                    if (currentPlayer > i){
+                        --currentPlayer;
+                    }
+                    --i; /* current i index is a different player now need to check them */
+                }
+            }
+            if (currentPlayer >= numPlayers)
+                currentPlayer = 0;
         }
 
         else{ /* player logic */
             if (!setupPlayer){
                 Fort playerFort = players[currentPlayer].Fort();
-                players[currentPlayer].setWeapon(new Weapon(playerFort.CenterX(), playerFort.Top(), 20, 2.0f));
+                players[currentPlayer].setWeapon(new Weapon(playerFort.CenterX(), playerFort.Top(), 20, .03f));
                 setupPlayer = true;
             }
             if (chargingWeapon){
-
+                /* full charge in roughly 1 second */
+                players[currentPlayer].currentWeapon().charge(4.0f / fps);
             }
             else if (fire){
+                Projectile bullet = players[currentPlayer].currentWeapon().fire();
+                scene.addActive(bullet);
+                GMGLRenderer.getRenderQueue().Add(bullet);
 
-                players[currentPlayer].currentWeapon().destroy();
+                players[currentPlayer].destroyWeapon();
                 ++currentPlayer;
-                if (currentPlayer > numPlayers)
+                if (currentPlayer >= numPlayers)
                     currentPlayer = 0;
+
+                setupPlayer = false;
                 fire = false;
+                chargingWeapon = false;
+
             }
 
         }
@@ -189,12 +219,15 @@ class GameView extends GLSurfaceView implements Runnable{
         switch (motionEvent.getAction()){
             case MotionEvent.ACTION_DOWN:
                 /* Check if we pressed the fire button */
-               if (!chargingWeapon  && (xWorld > -1.7 && yWorld < -1.7))
+               if (!chargingWeapon  && (xWorld < -1.7f && yWorld < -.7f))
                     chargingWeapon = true;
 
                 /* else fall through to the next case */
             case MotionEvent.ACTION_MOVE:
-                players[currentPlayer].currentWeapon().aim(xWorld, yWorld);
+                if (!chargingWeapon) {
+                    if (players[currentPlayer].currentWeapon() != null)
+                        players[currentPlayer].currentWeapon().aim(xWorld, yWorld);
+                }
                 break;
 
             case MotionEvent.ACTION_UP:

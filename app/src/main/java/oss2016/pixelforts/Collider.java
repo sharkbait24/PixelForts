@@ -56,15 +56,11 @@ public abstract class Collider {
     public abstract boolean setBounds(float Width, float Height);
 
     public boolean setBounds(float Top, float Bottom, float Left, float Right){
-        if ((Top > Bottom) && (Left > Right))
-        {
             top = Top;
             bottom = Bottom;
             left = Left;
             right = Right;
             return true;
-        }
-        return false;
     }
 }
 
