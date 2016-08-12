@@ -40,8 +40,6 @@ public abstract class Collider {
             return hasCollision((BoxCollider) toCheck);
         else if (toCheck instanceof CircleCollider)
             return hasCollision((CircleCollider) toCheck);
-        else if (toCheck instanceof CompoundCollider)
-            return hasCollision((CompoundCollider) toCheck);
         return false;
     }
 
@@ -58,7 +56,7 @@ public abstract class Collider {
     public abstract boolean setBounds(float Width, float Height);
 
     public boolean setBounds(float Top, float Bottom, float Left, float Right){
-        if (Top > Bottom && Left < Right)
+        if ((Top > Bottom) && (Left > Right))
         {
             top = Top;
             bottom = Bottom;
@@ -106,7 +104,7 @@ class BoxCollider extends Collider{
         float circleX = toCheck.transform.CenterX() + unitX * toCheck.radius;
         float circleY = toCheck.transform.CenterY() + unitY * toCheck.radius;
 
-        if (circleX > Left() && circleX < Right() &&
+        if (circleX < Left() && circleX > Right() &&
                 circleY > Bottom() && circleY < Top())
             return true;
 
@@ -123,7 +121,7 @@ class BoxCollider extends Collider{
 
         width = 2 * Radius;
         height = width;
-        return super.setBounds(centerY + Radius, centerY - Radius, centerX - Radius, centerX + Radius);
+        return super.setBounds(centerY + Radius, centerY - Radius, centerX + Radius, centerX - Radius);
     }
 
     /* Sets Bounds by width and height */
@@ -138,7 +136,7 @@ class BoxCollider extends Collider{
         height = Height;
         float dx = width / 2.0f;
         float dy = height / 2.0f;
-        return super.setBounds(centerY + dy,  centerY - dy, centerX - dx, centerX + dx);
+        return super.setBounds(centerY + dy,  centerY - dy, centerX + dx, centerX - dx);
     }
 }
 
@@ -167,7 +165,7 @@ class CircleCollider extends Collider{
         float centerY = transform.CenterY();
 
         radius = Radius;
-        return super.setBounds(centerY + Radius, centerY - Radius, centerX - Radius, centerX + Radius);
+        return super.setBounds(centerY + Radius, centerY - Radius, centerX + Radius, centerX - Radius);
     }
 
     /* Sets Bounds by width and height */
@@ -179,81 +177,6 @@ class CircleCollider extends Collider{
         float centerY = transform.CenterY();
 
         radius = Math.min(Width, Height);
-        return super.setBounds(centerY + radius,  centerY - radius, centerX - radius, centerX + radius);
-    }
-}
-
-/* holds an array of colliders that it checks against.  This is currently designed to work
-    for an array of BoxColliders for the Forts, but circles can be used too.
- */
-class CompoundCollider extends Collider{
-    private Collider[] colliders;
-
-    public CompoundCollider(Collider[] Colliders){
-        if (Colliders == null) {
-            colliders = new Collider[1]; /* default to a box collider */
-            colliders[0] = new BoxCollider();
-        }
-        else
-            colliders = Colliders;
-    }
-
-    /* checks for collision with a BoxCollider and any collider in the array*/
-    public boolean hasCollision(BoxCollider toCheck){
-        for (int i = 0; i < colliders.length; ++i){
-                if(colliders[i].hasCollision(toCheck))
-                    return true;
-        }
-        return false;
-    }
-
-    /* checks for collision with a CirlceCollider */
-    public boolean hasCollision(CircleCollider toCheck){
-        for (int i = 0; i < colliders.length; ++i){
-            if (colliders[i].hasCollision(toCheck))
-                return true;
-        }
-        return false;
-    }
-
-    /* Bounds for the compound is simply the "biggest" value found in all of the colliders */
-    /* Set Bounds by radius*/
-    public boolean setBounds(float Radius){
-        if (Radius < 0.0f)
-            return false;
-
-        for (int i = 0; i < colliders.length; ++i)
-            colliders[i].setBounds(Radius);
-        return setBoundsMax();
-    }
-
-    /* Sets Bounds by width and height */
-    public boolean setBounds(float Width, float Height){
-        if (Width < 0.0f || Height < 0.0f)
-            return false;
-
-        for (int i = 0; i < colliders.length; ++i)
-            colliders[i].setBounds(Width, Height);
-        return setBoundsMax();
-    }
-
-    /* performs the final bounds check to get the maximum bounds of all the colliders and set it */
-    private boolean setBoundsMax(){
-        float maxL = colliders[0].Left();
-        float maxR = colliders[0].Right();
-        float maxT = colliders[0].Top();
-        float maxB = colliders[0].Bottom();
-
-        for (int i = 1; i < colliders.length; ++i){
-            if (colliders[i].Left() < maxL)
-                maxL = colliders[i].Left();
-            if (colliders[i].Right() > maxR)
-                maxR = colliders[i].Right();
-            if (colliders[i].Top() > maxT)
-                maxT = colliders[i].Top();
-            if (colliders[i].Bottom() < maxB)
-                maxB = colliders[i].Bottom();
-        }
-        return super.setBounds(maxT, maxB, maxL, maxR);
+        return super.setBounds(centerY + radius,  centerY - radius, centerX + radius, centerX - radius);
     }
 }

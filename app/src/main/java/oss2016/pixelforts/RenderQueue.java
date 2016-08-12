@@ -6,9 +6,8 @@ import java.util.concurrent.locks.ReentrantLock;
    This program is available under the "MIT" license.
    Please see the COPYING file for license information.
 
-   Handles the storing of references to objects that need to be redrawn.
-   After drawing each object we check if the object still needs to be drawn again next frame.
-   If it doesn't, the object is removed from the render queue.
+   Handles the storing of references to objects that need to be drawn.  Since the Render is set
+   to
 
    Also added a lock to all public functions since this may be accessed by multiple threads in
    the future.
@@ -25,8 +24,9 @@ public class RenderQueue {
         mMVPMatrix = MMVPMatrix;
     }
 
-    /* Add a new node at the tail */
-    public void Add(Transform toAdd){
+    /* Add a new node at the tail that references the Transform
+    * DrawOnce will remove the node after the first Draw call*/
+    public void Add(Transform toAdd, boolean DrawOnce){
         lock.lock();
         try {
             if (toAdd == null) {
@@ -38,8 +38,9 @@ public class RenderQueue {
             if (free != null) {
                 temp = nextFree();
                 temp.object = toAdd;
+                temp.drawOnce = DrawOnce;
             } else
-                temp = new Node(toAdd);
+                temp = new Node(toAdd, DrawOnce);
 
             if (tail == null) {
                 head = temp;
@@ -53,6 +54,7 @@ public class RenderQueue {
         }
     }
 
+    /* Remove a specific node, when it no longer needs to be drawn */
     public boolean remove(Transform toRemove){
         lock.lock();
         try {
@@ -89,8 +91,7 @@ public class RenderQueue {
         return false;
     }
 
-    /* calls draw on every object in the queue and after checks if it still needs to be redrawn.
-        If needsRedrawn returns false, then the object is removed from the queue.
+    /* calls draw on every object in the queue.  If the node is marked drawOnce, the node is removed
      */
     public void DrawAll(){
         lock.lock();
@@ -105,12 +106,11 @@ public class RenderQueue {
             while (current != null) {
                 if (current.object != null) {
                     current.object.Draw(mMVPMatrix);
-                    if (current.object.NeedsRedrawn()) {
+                    if (!current.drawOnce) {
                         previous = current;
                         current = current.next;
                         continue;
                     }
-
                 }
             /* object needs to be removed */
                 Node toRemove = current;
@@ -135,6 +135,7 @@ public class RenderQueue {
         toAdd.next = free;
         free = toAdd;
         toAdd.object = null;
+        toAdd.drawOnce = false;
     }
 
     /* Remove the first node in the list */
@@ -176,9 +177,11 @@ public class RenderQueue {
 class Node {
     Transform object;
     Node next;
+    boolean drawOnce;
 
-    public Node(Transform toAdd){
+    public Node(Transform toAdd, boolean DrawOnce){
         object = toAdd;
+        drawOnce = DrawOnce;
         next = null;
     }
 }

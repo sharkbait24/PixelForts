@@ -15,9 +15,6 @@ import android.util.Log;
 
    Most of the rendering code comes from Google's Android Developer Training
    <https://developer.android.com/training/graphics/opengl/index.html>.
-
-   Most of the game loop and GameView logic came from a web tutorial by John Horton
-   <http://gamecodeschool.com/android/building-a-simple-game-engine/>
 */
 public class GameManager extends AppCompatActivity {
     private GameView gmView;
@@ -51,6 +48,9 @@ public class GameManager extends AppCompatActivity {
 /* The main game thread.  The GLSurfaceView is used to render objects and detect touch events.
     The Runnable, allows us to define our own game thread that will run the main game loop that
     updates the game.
+
+    Most of the game loop and GameView logic came from a web tutorial by John Horton
+    <http://gamecodeschool.com/android/building-a-simple-game-engine/>
  */
 class GameView extends GLSurfaceView implements Runnable{
     private final GMGLRenderer gmRenderer;
@@ -81,6 +81,8 @@ class GameView extends GLSurfaceView implements Runnable{
         // Set the Renderer for drawing on the GMGLSurfaceView
         setRenderer(gmRenderer);
 
+        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+
         gameStart();
     }
 
@@ -93,7 +95,7 @@ class GameView extends GLSurfaceView implements Runnable{
 
         testParticle = new Projectile(0.0f, 1.0f, .1f, .1f);
         renderQueue = scene.getRenderQueue();
-        renderQueue.Add(testParticle);
+        renderQueue.Add(testParticle, false);
 
 
         /* allows the run() thread method to update the game */

@@ -10,7 +10,6 @@ package oss2016.pixelforts;
 public abstract class Transform {
     private float centerX;
     private float centerY;
-    private boolean needsUpdate;
     private boolean isMoving; /* holds if the object has not finished moving */
     private boolean isDead;
     private Collider collider;
@@ -19,7 +18,6 @@ public abstract class Transform {
 
     public float CenterX() { return centerX; }
     public float CenterY() { return centerY; }
-    public boolean NeedsUpdate() { return needsUpdate; }
     public boolean IsMoving() {return  isMoving; }
     public boolean IsDead() { return isDead; }
 
@@ -37,7 +35,6 @@ public abstract class Transform {
         centerX = 0.0f;
         centerY = 0.0f;
 
-        needsUpdate = false;
         isMoving = false;
         isDead = false;
     }
@@ -45,7 +42,6 @@ public abstract class Transform {
     public Transform(float X, float Y){
         SetCenter(X, Y);
 
-        needsUpdate = false;
         isMoving = false;
         isDead = false;
     }
@@ -60,12 +56,11 @@ public abstract class Transform {
     /* handles updating the movement from velocity each frame */
     public void Update(){
         if (isDead) {
-            needsUpdate = false;
             return;
         }
 
         /* gravity */
-        ApplyForce(0.0f, -.2f / (float) GameView.FPS());
+        ApplyForce(0.0f, -.1f / (float) GameView.FPS());
         SetCenter(centerX + velocityX, centerY + velocityY);
     }
 
@@ -116,9 +111,6 @@ public abstract class Transform {
 
     /* draw the object */
     public abstract void Draw(float[] mvpMatrix);
-
-    /* Returns if the object needs to be drawn */
-    public abstract boolean NeedsRedrawn();
 
     /* adds a renderer to be able to draw the object */
     public abstract int addRenderer();

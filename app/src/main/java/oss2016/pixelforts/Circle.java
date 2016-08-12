@@ -2,14 +2,14 @@ package oss2016.pixelforts;
 
 /* Copyright (c) 2016 Joe Coleman
    This program is available under the "MIT" license.
-   Please see the COPYING file for license information..
+   Please see the COPYING file for license information.
+
+   Will eventually be an n-sided polygon class used to represent circular objects.
+   This class isn't fully implemented yet.
  */
 public class Circle extends Transform {
     float radius;
-    private boolean needsRedrawn;
     private Collider collider;
-
-    public boolean NeedsRedrawn() { return needsRedrawn; }
 
     public Circle(){
         super();
@@ -42,13 +42,10 @@ public class Circle extends Transform {
 
     /* Build the vertexBuffer and drawListBuffer to be used in the Draw function */
     public void buildVertices(){
-        needsRedrawn = true;
     }
 
     /* Draw the Square */
-    public void Draw(float[] mvpMatrix){
-        needsRedrawn = false;
-    }
+    public void Draw(float[] mvpMatrix){}
 
     /* adds a renderer to be able to draw the object */
     public int addRenderer(){

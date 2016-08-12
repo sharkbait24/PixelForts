@@ -35,20 +35,17 @@ public class Fort extends Transform{
 
         if (rectangles == null) {
             rectangles = new Rectangle[3];
-            Collider[] colliders = new Collider[3]; /* colliders for each rectangle */
             for (int i = 0; i < rectangles.length; ++i) {
                 rectangles[i] = new Rectangle();
-                colliders[i] = new BoxCollider();
-                rectangles[i].setCollider(colliders[i]);
                 rectangles[i].addRenderer();
                 rectangles[i].setColor(1.0f, .2f, .2f, 0.0f);
             }
-            Collider temp = new CompoundCollider(colliders); /* compound collider for Fort */
+            Collider temp = new BoxCollider(); /* compound collider for Fort */
             setCollider(temp);
         }
 
-        height = Height;
         width = Width;
+        height = Height;
 
         /* calculate the new offsets for the rectangles */
         rectangles[0].SetCenter(CenterX(), CenterY() - .1f * height);
@@ -59,10 +56,7 @@ public class Fort extends Transform{
         rectangles[0].setDimensions(Width, .8f * Height);
         rectangles[1].setDimensions(0.3f * Width, .2f * Height);
         rectangles[2].setDimensions(0.3f * Width, .2f * Height);
-        needsRedrawn = true;
     }
-
-    public boolean NeedsRedrawn() { return needsRedrawn; }
 
     /* adds the renderer needed for each rectangle */
     public int addRenderer(){
@@ -116,8 +110,6 @@ public class Fort extends Transform{
     public void buildVertices(){
         for (int i = 0; i < rectangles.length; ++i) {
             rectangles[i].buildVertices();
-            if (rectangles[i].NeedsRedrawn())
-                needsRedrawn = true;
         }
     }
 
@@ -125,8 +117,6 @@ public class Fort extends Transform{
     public void Draw(float[] mvpMatrix){
         for (int i = 0; i < rectangles.length; ++i) {
             rectangles[i].Draw(mvpMatrix);
-            if (rectangles[i].NeedsRedrawn())
-                needsRedrawn = true;
         }
     }
 

@@ -10,10 +10,7 @@ public class Rectangle extends Transform {
     private float width;
     private float height;
     private RectangleRenderer renderer;
-    private boolean needsRedrawn;
     private Collider collider;
-
-    public boolean NeedsRedrawn() { return needsRedrawn; }
 
     public Rectangle() {
         super();
@@ -44,7 +41,6 @@ public class Rectangle extends Transform {
         if (renderer == null)
             return 0;
         renderer = null;
-        needsRedrawn = false;
         return 1;
     }
 
@@ -71,7 +67,6 @@ public class Rectangle extends Transform {
             if (renderer != null){
                 renderer.setDimensions(CenterX(), CenterY(), Width, Height);
                 renderer.buildVertices();
-                needsRedrawn = true;
             }
             if (collider != null)
                 collider.setBounds(Width, Height);
@@ -84,7 +79,6 @@ public class Rectangle extends Transform {
     public void buildVertices(){
         if (renderer != null) {
             renderer.buildVertices();
-            needsRedrawn = true;
         }
     }
 
@@ -92,16 +86,14 @@ public class Rectangle extends Transform {
     public void Draw(float[] mvpMatrix){
         if (renderer != null) {
             renderer.Draw(mvpMatrix);
-            needsRedrawn = !IsMoving(); /* if still moving this needs to be rendered again next frame */
         }
-        else
-            needsRedrawn = false;
     }
 
     /* sadly right now setDimensions is the best way to update everything */
     public void Update(){
         super.Update();
-        setDimensions(width, height);
+        if (IsMoving())
+            setDimensions(width, height);
     }
 
     /* Returns the bounds of the object */

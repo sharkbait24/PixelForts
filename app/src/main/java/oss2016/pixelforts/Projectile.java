@@ -24,13 +24,9 @@ public class Projectile extends Rectangle {
         super.setDimensions(Width, Height);
     }
 
-    /* lazy way out but the project should be continually drawn until it dies */
-    @Override
-    public boolean NeedsRedrawn() { return true; }
-
     public boolean hasCollision(Transform toCheck) {
         if (super.hasCollision(toCheck)) {
-            dealDamage(damage);
+            toCheck.dealDamage(damage);
             setDead(true);
         }
         return false;

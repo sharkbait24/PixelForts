@@ -11,16 +11,18 @@ import java.util.Random;
 */
 public class Scene {
     private Land[] land;
+    private Fort[] players;
     private Region[] regions;
     private RenderQueue renderQueue;
 
     public RenderQueue getRenderQueue(){ return renderQueue; }
 
-    public Scene (Fort[] players){
+    public Scene (Fort[] Players){
         renderQueue = GMGLRenderer.getRenderQueue();
         buildRegions(17);
         generateLand(85);
-        placePlayers(players);
+        players = Players;
+        placePlayers();
     }
 
     /* Some random weights applied to a sin curve to make the "rolling hills" style */
@@ -43,13 +45,13 @@ public class Scene {
             land[i].setDimensions(0.05f, height);
             x += 0.05f;
             modX = modX + 0.05f * random;
-            renderQueue.Add(land[i]);
+            renderQueue.Add(land[i], false);
             placeInRegion(land[i]);
         }
     }
 
     /* Place the player forts on the land */
-    private void placePlayers(Fort[] players){
+    private void placePlayers(){
         int space = land.length / (players.length + 1);
         int index = 0;
         Random rand = new Random();
@@ -59,7 +61,7 @@ public class Scene {
             players[i].SetCenter(land[index].CenterX(), land[index].Top() + .15f);
             players[i].setDimensions(.2f, .3f);
             random = Math.abs(rand.nextInt()) % space / space + space;
-            renderQueue.Add(players[i]);
+            renderQueue.Add(players[i], false);
             placeInRegion(players[i]);
         }
     }
