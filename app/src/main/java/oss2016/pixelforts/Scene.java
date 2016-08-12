@@ -29,8 +29,10 @@ public class Scene {
         generateLand(85);
 
         players = new Fort[Players.length];
-        for (int i = 0; i < Players.length; ++i)
+        for (int i = 0; i < Players.length; ++i) {
+            Players[i].buildFort();
             players[i] = Players[i].Fort();
+        }
         placePlayers();
     }
 

@@ -5,7 +5,11 @@ import android.opengl.GLSurfaceView;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
+import android.view.MotionEvent;
+import android.view.WindowManager;
 
 /* Copyright (c) 2016 Joe Coleman
    This program is available under the "MIT" license.
@@ -18,10 +22,15 @@ import android.util.Log;
 */
 public class GameManager extends AppCompatActivity {
     private GameView gmView;
+    private static DisplayMetrics metrics = new DisplayMetrics();
+
+    public static DisplayMetrics getMetrics() {return metrics;}
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
         // Create a GLSurfaceVIew instance and set it
         // as the ContentView for this Activity.
@@ -66,8 +75,12 @@ class GameView extends GLSurfaceView implements Runnable{
     private Scene scene; /* holds references to all object in the scene */
     private int currentPlayer;
     private boolean setupPlayer; /* holds if the player has been setup after switching players */
+    private boolean chargingWeapon;
+    private boolean fire;
 
     public static long FPS(){ return fps; }
+
+
 
     public GameView(Context context) {
         super(context);
@@ -93,6 +106,8 @@ class GameView extends GLSurfaceView implements Runnable{
         scene = new Scene(players);
         currentPlayer = 0;
         setupPlayer = false;
+        chargingWeapon = false;
+        fire = false;
 
         /* allows the run() thread method to update the game */
         playing = true;
@@ -120,6 +135,8 @@ class GameView extends GLSurfaceView implements Runnable{
                 try {
                     if (sleepTime > 0)
                         Thread.sleep(sleepTime);
+                    else
+                        Thread.sleep(10);
                 } catch (Exception e) {}
             }
         }
@@ -138,12 +155,55 @@ class GameView extends GLSurfaceView implements Runnable{
         else{ /* player logic */
             if (!setupPlayer){
                 Fort playerFort = players[currentPlayer].Fort();
-                players[currentPlayer].setWeapon(new Weapon(playerFort.CenterX(), playerFort.Top(), 20));
+                players[currentPlayer].setWeapon(new Weapon(playerFort.CenterX(), playerFort.Top(), 20, 2.0f));
                 setupPlayer = true;
             }
+            if (chargingWeapon){
 
-            
+            }
+            else if (fire){
+
+                players[currentPlayer].currentWeapon().destroy();
+                ++currentPlayer;
+                if (currentPlayer > numPlayers)
+                    currentPlayer = 0;
+                fire = false;
+            }
+
         }
+    }
+
+
+    @Override
+    public boolean onTouchEvent(MotionEvent motionEvent){
+
+        float x = motionEvent.getX();
+        float y = motionEvent.getY();
+
+        /* change to world coords */
+        float width = (float) GameManager.getMetrics().widthPixels;
+        float height = (float) GameManager.getMetrics().heightPixels;
+        float xWorld = 4.0f * (width / 2.0f - x) / width;
+        float yWorld = 2.0f * (height / 2.0f - y) / height;
+
+        switch (motionEvent.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                /* Check if we pressed the fire button */
+               if (!chargingWeapon  && (xWorld > -1.7 && yWorld < -1.7))
+                    chargingWeapon = true;
+
+                /* else fall through to the next case */
+            case MotionEvent.ACTION_MOVE:
+                players[currentPlayer].currentWeapon().aim(xWorld, yWorld);
+                break;
+
+            case MotionEvent.ACTION_UP:
+                if (chargingWeapon) {
+                    fire = true;
+                    chargingWeapon = false;
+                }
+        }
+        return true;
     }
 
     /*User left the game, close the gameLoop thread */

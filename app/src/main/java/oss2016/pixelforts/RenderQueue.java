@@ -105,6 +105,7 @@ public class RenderQueue {
             while (current != null) {
                 if (current.object != null) {
                     current.object.Draw(mMVPMatrix);
+                    current = current.next;
                     continue;
                 }
             /* null object needs to be removed */

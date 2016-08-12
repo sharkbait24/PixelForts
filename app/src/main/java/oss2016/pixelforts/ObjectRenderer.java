@@ -59,7 +59,7 @@ public abstract class ObjectRenderer {
 
     /* Draw the Square */
     public void Draw(float[] mvpMatrix, int POINTS_PER_VERTEX, int glProgram, int vertexStride,
-                     int vertexCount){
+                     int vertexCount, int GL_TYPE){
         /* Add program to OpenGL ES environment */
         GLES20.glUseProgram(glProgram);
 
@@ -87,7 +87,7 @@ public abstract class ObjectRenderer {
         GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0);
 
         /* Draw the triangles */
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, vertexCount);
+        GLES20.glDrawArrays(GL_TYPE, 0, vertexCount);
 
         /* Disable vertex array */
         GLES20.glDisableVertexAttribArray(mPositionHandle);

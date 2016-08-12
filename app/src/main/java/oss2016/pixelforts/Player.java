@@ -31,6 +31,10 @@ public abstract class Player {
         fort = null;
     }
 
+    public void buildFort(){
+        fort = new Fort();
+    }
+
     /* initialize the player's fort */
     public void buildFort(float CenterX, float CenterY, float Width, float Height){
         fort = new Fort(CenterX, CenterY, Width, Height);
