@@ -52,8 +52,8 @@ public abstract class Transform {
 
     /* change center position relative to current position */
     public void ApplyForce(float VelocityX, float VelocityY){
-        velocityX += VelocityX;
-        velocityY += VelocityY;
+        velocityX += VelocityX / GameView.FPS();
+        velocityY += VelocityY / GameView.FPS();
         isMoving = true;
     }
 
@@ -65,7 +65,7 @@ public abstract class Transform {
         }
 
         /* gravity */
-        ApplyForce(0.0f, -.00009f);
+        ApplyForce(0.0f, -.2f / (float) GameView.FPS());
         SetCenter(centerX + velocityX, centerY + velocityY);
     }
 
@@ -102,6 +102,8 @@ public abstract class Transform {
         if (collider == null || toCheck.collider == null)
             return false;
         if(collider.hasCollision(toCheck.collider)) {
+            velocityX = 0;
+            velocityY = 0;
             if (!toCheck.isMoving)
                 isMoving = false;
             return true;

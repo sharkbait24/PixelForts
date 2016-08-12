@@ -9,6 +9,9 @@ import java.util.concurrent.locks.ReentrantLock;
    Handles the storing of references to objects that need to be redrawn.
    After drawing each object we check if the object still needs to be drawn again next frame.
    If it doesn't, the object is removed from the render queue.
+
+   Also added a lock to all public functions since this may be accessed by multiple threads in
+   the future.
  */
 public class RenderQueue {
     private Node head;
