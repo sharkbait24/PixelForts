@@ -14,6 +14,8 @@ public class Scene {
     private Region[] regions;
     private RenderQueue renderQueue;
 
+    public RenderQueue getRenderQueue(){ return renderQueue; }
+
     public Scene (Fort[] players){
         renderQueue = GMGLRenderer.getRenderQueue();
         buildRegions(17);
@@ -42,10 +44,7 @@ public class Scene {
             x += 0.05f;
             modX = modX + 0.05f * random;
             renderQueue.Add(land[i]);
-            for (int j = 0; j < regions.length; ++j){ /* possible for a piece to be in multiple regions */
-                if (land[i].Right() < regions[j].left)
-                    regions[j].add(land[i]);
-            }
+            placeInRegion(land[i]);
         }
     }
 
@@ -61,6 +60,15 @@ public class Scene {
             players[i].setDimensions(.2f, .3f);
             random = Math.abs(rand.nextInt()) % space / space + space;
             renderQueue.Add(players[i]);
+            placeInRegion(players[i]);
+        }
+    }
+
+    /* loop through region array and a find all of the regions the transform resides in */
+    private void placeInRegion(Transform toAdd){
+        for (int i = 0; i < regions.length && toAdd.Left() > regions[i].right; ++i){
+            if (toAdd.Right() < regions[i].left)
+                regions[i].add(toAdd);
         }
     }
 
@@ -77,6 +85,29 @@ public class Scene {
             right = left;
             left = left + space;
         }
+    }
+
+    /* first determine the region this transform is in, then determine if a collision happened */
+    public boolean hasCollisions(Transform from){
+        if (from == null)
+            return false;
+
+        for(int i = 0; i < regions.length && from.Left() > regions[i].right; ++i)
+        {
+            if (from.Right() < regions[i].left){
+                RegionNode current = regions[i].head;
+                while (current != null && from.Bottom() < current.object.Top()){
+                    if (from.hasCollision(current.object)) {
+                        if (from instanceof Projectile) {
+                            current.object.dealDamage(((Projectile) from).getDamage());
+                        }
+                        return true;
+                    }
+                    current = current.next;
+                }
+            }
+        }
+        return false;
     }
 }
 
@@ -114,6 +145,29 @@ class Region{
             temp.next = current;
             previous.next = temp;
         }
+    }
+
+    /* remove a specific object, used to remove destroyed objects, such as forts*/
+    public boolean Remove(Transform toRemove){
+        if (head == null)
+            return false;
+
+        RegionNode current = head;
+        RegionNode previous = null;
+        while (current != null){
+            if (current.object == toRemove){
+                RegionNode temp = current;
+                current = current.next;
+                if (previous == null)
+                    head = current;
+                else
+                    previous.next = current;
+                return true;
+            }
+            previous = current;
+            current = current.next;
+        }
+        return false;
     }
 
     /* empty the list */

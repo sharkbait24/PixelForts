@@ -12,12 +12,16 @@ public abstract class Transform {
     private float centerY;
     private boolean needsUpdate;
     private boolean isMoving; /* holds if the object has not finished moving */
+    private boolean isDead;
     private Collider collider;
+    private float velocityX;
+    private float velocityY;
 
     public float CenterX() { return centerX; }
     public float CenterY() { return centerY; }
     public boolean NeedsUpdate() { return needsUpdate; }
     public boolean IsMoving() {return  isMoving; }
+    public boolean IsDead() { return isDead; }
 
     /* adds a collider to the object for collision detection */
     public void setCollider(Collider toSet){
@@ -25,6 +29,9 @@ public abstract class Transform {
         collider.setTransform(this);
     }
     public Collider getCollider(){ return collider;}
+    public void setDead(boolean val){
+        isDead = val;
+    }
 
     public Transform(){
         centerX = 0.0f;
@@ -32,6 +39,7 @@ public abstract class Transform {
 
         needsUpdate = false;
         isMoving = false;
+        isDead = false;
     }
 
     public Transform(float X, float Y){
@@ -39,22 +47,36 @@ public abstract class Transform {
 
         needsUpdate = false;
         isMoving = false;
+        isDead = false;
     }
 
     /* change center position relative to current position */
-    public void Move(float deltaX, float deltaY){
-        centerX += deltaX;
-        centerY += deltaY;
+    public void ApplyForce(float VelocityX, float VelocityY){
+        velocityX += VelocityX;
+        velocityY += VelocityY;
         isMoving = true;
     }
+
+    /* handles updating the movement from velocity each frame */
+    public void Update(){
+        if (isDead) {
+            needsUpdate = false;
+            return;
+        }
+
+        /* gravity */
+        ApplyForce(0.0f, -.00009f);
+        SetCenter(centerX + velocityX, centerY + velocityY);
+    }
+
+    /* called by projectiles on collision */
+    public void dealDamage(int damage){}
 
     /* move to a specific position */
     public void SetCenter(float CenterX, float CenterY){
         centerX = CenterX;
         centerY = CenterY;
     }
-
-
 
     /* calculate the distance between the center of this shape and another */
     public float Distance(Transform from){ return Distance(from.centerX, from.centerY); }
@@ -79,7 +101,12 @@ public abstract class Transform {
     public boolean hasCollision(Transform toCheck){
         if (collider == null || toCheck.collider == null)
             return false;
-        return collider.hasCollision(toCheck.collider);
+        if(collider.hasCollision(toCheck.collider)) {
+            if (!toCheck.isMoving)
+                isMoving = false;
+            return true;
+        }
+        return false;
     }
 
     /* build the vertices for derived classes so they can be drawn */

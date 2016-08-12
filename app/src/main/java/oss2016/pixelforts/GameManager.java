@@ -16,9 +16,6 @@ import android.os.Bundle;
 */
 public class GameManager extends AppCompatActivity {
     private GLSurfaceView gmView;
-    private Fort[] players;
-    private Scene scene; /* holds references to all object in the scene */
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,20 +23,22 @@ public class GameManager extends AppCompatActivity {
 
         // Create a GLSurfaceVIew instance and set it
         // as the ContentView for this Activity.
-        gmView = new GMGLSurfaceView(this);
+        gmView = new GameView(this);
         setContentView(gmView);
-
-        players = new Fort[5];
-        for (int i = 0; i < 5; ++i)
-            players[i] = new Fort();
-        scene = new Scene(players);
     }
 }
 
-class GMGLSurfaceView extends GLSurfaceView {
+class GameView extends GLSurfaceView {
     private final GMGLRenderer gmRenderer;
 
-    public GMGLSurfaceView(Context context){
+    private Fort[] players;
+    private int numPlayers = 5;
+    private Scene scene; /* holds references to all object in the scene */
+    private RenderQueue renderQueue;
+
+    private Projectile testParticle;
+
+    public GameView(Context context){
         super(context);
 
         // Create an OpenGL ES 2.0 context
@@ -49,5 +48,44 @@ class GMGLSurfaceView extends GLSurfaceView {
 
         // Set the Renderer for drawing on the GMGLSurfaceView
         setRenderer(gmRenderer);
+
+        gameStart();
+    }
+
+    private void gameStart(){
+        players = new Fort[numPlayers];
+        for (int i = 0; i < numPlayers; ++i)
+            players[i] = new Fort();
+        scene = new Scene(players);
+
+        testParticle = new Projectile(0.0f, 1.0f, .1f, .1f);
+        renderQueue = scene.getRenderQueue();
+        renderQueue .Add(testParticle);
+
+
+        /* start gameloop thread */
+        Thread loop = new Thread()
+        {
+            public void run()
+            {
+                gameLoop();
+            }
+        };
+        loop.start();
+    }
+
+    /* Manages telling projectiles to update and the scene to check for collisions */
+    private void gameLoop(){
+        while (numPlayers > 1){
+            testParticle.Update();
+            scene.hasCollisions(testParticle);
+            if (testParticle.IsDead())
+            {
+                renderQueue.remove(testParticle);
+            }
+
+            requestRender();
+            try {Thread.sleep(50); } catch(Exception e) {}
+        }
     }
 }

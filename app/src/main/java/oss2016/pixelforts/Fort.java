@@ -9,7 +9,7 @@ package oss2016.pixelforts;
    detection.  There is no rendering or collision detection on the Fort itself.
 */
 public class Fort extends Transform{
-    private int health;
+    private int health = 100;
 
     private float width;
     private float height;
@@ -19,13 +19,11 @@ public class Fort extends Transform{
 
     public Fort(){
         super();
-
         setupFort(1.0f, 1.0f);
     }
 
     public Fort(float CenterX, float CenterY, float Width, float Height){
         super(CenterX, CenterY);
-
         setupFort(Width, Height);
     }
 
@@ -130,6 +128,14 @@ public class Fort extends Transform{
             if (rectangles[i].NeedsRedrawn())
                 needsRedrawn = true;
         }
+    }
+
+    /* called by projectiles on collision */
+    public void dealDamage(int damage){
+        health -= damage;
+        if (health <= 0)
+            setDead(true);
+        setDimensions(0.0f, 0.0f);
     }
 
     /* Returns the bounds of the object */

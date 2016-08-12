@@ -98,6 +98,12 @@ public class Rectangle extends Transform {
             needsRedrawn = false;
     }
 
+    /* sadly right now setDimensions is the best way to update everything */
+    public void Update(){
+        super.Update();
+        setDimensions(width, height);
+    }
+
     /* Returns the bounds of the object */
     public float Top(){
         if (collider != null)

@@ -1,5 +1,7 @@
 package oss2016.pixelforts;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 /* Copyright (c) 2016 Joe Coleman
    This program is available under the "MIT" license.
    Please see the COPYING file for license information.
@@ -14,53 +16,72 @@ public class RenderQueue {
     private Node free; /* free RenderNode list */
     private float[] mMVPMatrix;
 
+    private final ReentrantLock lock = new ReentrantLock();
+
     public RenderQueue(float[] MMVPMatrix){
         mMVPMatrix = MMVPMatrix;
     }
 
     /* Add a new node at the tail */
     public void Add(Transform toAdd){
-        if (toAdd == null)
-            return;
+        lock.lock();
+        try {
+            if (toAdd == null) {
+                lock.unlock();
+                return;
+            }
 
-        Node temp;
-        if (free != null) {
-            temp = nextFree();
-            temp.object = toAdd;
-        }
-        else
-            temp = new Node(toAdd);
+            Node temp;
+            if (free != null) {
+                temp = nextFree();
+                temp.object = toAdd;
+            } else
+                temp = new Node(toAdd);
 
-        if (tail == null) {
-            head = temp;
-            tail = temp;
-        }
-        else {
-            tail.next = temp;
-            tail = temp;
+            if (tail == null) {
+                head = temp;
+                tail = temp;
+            } else {
+                tail.next = temp;
+                tail = temp;
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
-    public boolean Remove(Transform toRemove){
-        if (head == null)
-            return false;
-
-        Node current = head;
-        Node previous = null;
-        while (current != null){
-            if (current.object == toRemove){
-                Node temp = current;
-                current = current.next;
-                if (previous == null)
-                    head = current;
-                else
-                    previous.next = current;
-
-                addFree(temp);
-                return true;
+    public boolean remove(Transform toRemove){
+        lock.lock();
+        try {
+            if (head == null) {
+                lock.unlock();
+                return false;
             }
-            previous = current;
-            current = current.next;
+
+            Node current = head;
+            Node previous = null;
+            while (current != null) {
+                if (current.object == toRemove) {
+                    Node temp = current;
+                    current = current.next;
+                    if (temp.next == null)
+                        tail = previous;
+                    if (previous == null) {
+                        head = current;
+                    } else
+                        previous.next = current;
+
+                    addFree(temp);
+                    lock.unlock();
+                    return true;
+                }
+                else {
+                    previous = current;
+                    current = current.next;
+                }
+            }
+        } finally {
+            lock.unlock();
         }
         return false;
     }
@@ -69,30 +90,39 @@ public class RenderQueue {
         If needsRedrawn returns false, then the object is removed from the queue.
      */
     public void DrawAll(){
-        if (head == null)
-            return;
-
-        Node current = head;
-        Node previous = null;
-        while (current != null){
-            if (current.object != null) {
-                current.object.Draw(mMVPMatrix);
-                if (current.object.NeedsRedrawn()){
-                    previous = current;
-                    current = current.next;
-                    continue;
-                }
-
+        lock.lock();
+        try {
+            if (head == null) {
+                lock.unlock();
+                return;
             }
-            /* object needs to be removed */
-            Node toRemove = current;
-            current = current.next;
-            if (previous == null)
-                head = current;
-            else
-                previous.next = current;
 
-            addFree(toRemove);
+            Node current = head;
+            Node previous = null;
+            while (current != null) {
+                if (current.object != null) {
+                    current.object.Draw(mMVPMatrix);
+                    if (current.object.NeedsRedrawn()) {
+                        previous = current;
+                        current = current.next;
+                        continue;
+                    }
+
+                }
+            /* object needs to be removed */
+                Node toRemove = current;
+                current = current.next;
+                if (toRemove.next == null)
+                    tail = previous;
+                if (previous == null)
+                    head = current;
+                else
+                    previous.next = current;
+
+                addFree(toRemove);
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -117,14 +147,25 @@ public class RenderQueue {
     /* All the GameManager to empty this list, especially after the game load when hundreds
         of objects will be in the queue. */
     public void emptyFreeList(){
-        free = null;
+        lock.lock();
+        try {
+            free = null;
+        } finally {
+            lock.unlock();
+        }
+
     }
 
     /* Destroy the entire queue */
     public void removeAll(){
-        head = null;
-        tail = null;
-        free = null;
+        lock.lock();
+        try {
+            head = null;
+            tail = null;
+            free = null;
+        }finally {
+            lock.unlock();
+        }
     }
 }
 
