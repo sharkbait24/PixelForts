@@ -26,7 +26,7 @@ public class RenderQueue {
 
     /* Add a new node at the tail that references the Transform
     * DrawOnce will remove the node after the first Draw call*/
-    public void Add(Transform toAdd, boolean DrawOnce){
+    public void Add(Transform toAdd){
         lock.lock();
         try {
             if (toAdd == null) {
@@ -38,9 +38,8 @@ public class RenderQueue {
             if (free != null) {
                 temp = nextFree();
                 temp.object = toAdd;
-                temp.drawOnce = DrawOnce;
             } else
-                temp = new Node(toAdd, DrawOnce);
+                temp = new Node(toAdd);
 
             if (tail == null) {
                 head = temp;
@@ -106,13 +105,9 @@ public class RenderQueue {
             while (current != null) {
                 if (current.object != null) {
                     current.object.Draw(mMVPMatrix);
-                    if (!current.drawOnce) {
-                        previous = current;
-                        current = current.next;
-                        continue;
-                    }
+                    continue;
                 }
-            /* object needs to be removed */
+            /* null object needs to be removed */
                 Node toRemove = current;
                 current = current.next;
                 if (toRemove.next == null)
@@ -135,7 +130,6 @@ public class RenderQueue {
         toAdd.next = free;
         free = toAdd;
         toAdd.object = null;
-        toAdd.drawOnce = false;
     }
 
     /* Remove the first node in the list */
@@ -177,11 +171,9 @@ public class RenderQueue {
 class Node {
     Transform object;
     Node next;
-    boolean drawOnce;
 
-    public Node(Transform toAdd, boolean DrawOnce){
+    public Node(Transform toAdd){
         object = toAdd;
-        drawOnce = DrawOnce;
         next = null;
     }
 }

@@ -12,10 +12,16 @@ import java.util.Random;
 public class Scene {
     private Land[] land;
     private Fort[] players;
+    private Node active; /* A list of objects that are moving in the scene */
     private Region[] regions;
     private RenderQueue renderQueue;
 
     public RenderQueue getRenderQueue(){ return renderQueue; }
+    public boolean isActive() {
+        if (active == null)
+            return false;
+        return true;
+    }
 
     public Scene (Fort[] Players){
         renderQueue = GMGLRenderer.getRenderQueue();
@@ -45,7 +51,7 @@ public class Scene {
             land[i].setDimensions(0.05f, height);
             x += 0.05f;
             modX = modX + 0.05f * random;
-            renderQueue.Add(land[i], false);
+            renderQueue.Add(land[i]);
             placeInRegion(land[i]);
         }
     }
@@ -61,7 +67,7 @@ public class Scene {
             players[i].SetCenter(land[index].CenterX(), land[index].Top() + .15f);
             players[i].setDimensions(.2f, .3f);
             random = Math.abs(rand.nextInt()) % space / space + space;
-            renderQueue.Add(players[i], false);
+            renderQueue.Add(players[i]);
             placeInRegion(players[i]);
         }
     }
@@ -89,6 +95,37 @@ public class Scene {
         }
     }
 
+    /* simple LLL of objects that are in a moving state */
+    public void addActive(Transform toAdd){
+        Node temp = new Node(toAdd);
+        temp.next = active;
+        active = temp;
+    }
+
+    /* Goes through all active objects in the scene and calls update on them
+        and checks for collisions.  Also removes dead, or objects that aren't moving, from the list.
+     */
+    public void update() {
+        if (active == null)
+            return;
+
+        Node current = active;
+        Node prev = null;
+        while (current != null){
+            current.object.Update();
+
+            if (current.object.IsDead() || !current.object.IsMoving()){
+                if (prev == null)
+                    active = current.next;
+                else
+                    prev.next = current.next;
+            }
+            else
+                prev = current;
+            current = current.next;
+        }
+    }
+
     /* first determine the region this transform is in, then determine if a collision happened */
     public boolean hasCollisions(Transform from){
         if (from == null)
@@ -100,9 +137,6 @@ public class Scene {
                 RegionNode current = regions[i].head;
                 while (current != null && from.Bottom() < current.object.Top()){
                     if (from.hasCollision(current.object)) {
-                        if (from instanceof Projectile) {
-                            current.object.dealDamage(((Projectile) from).getDamage());
-                        }
                         return true;
                     }
                     current = current.next;

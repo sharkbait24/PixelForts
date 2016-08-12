@@ -93,11 +93,6 @@ class GameView extends GLSurfaceView implements Runnable{
             players[i] = new Fort();
         scene = new Scene(players);
 
-        testParticle = new Projectile(0.0f, 1.0f, .1f, .1f);
-        renderQueue = scene.getRenderQueue();
-        renderQueue.Add(testParticle, false);
-
-
         /* allows the run() thread method to update the game */
         playing = true;
     }
@@ -129,11 +124,19 @@ class GameView extends GLSurfaceView implements Runnable{
         }
     }
 
-    /* Go through all of the objects that are currently being tracked and update or remove them */
+    /* Run the scene while there are active objects in it.
+        If the scene is quiet, have the next player play*/
     public void update() {
-        testParticle.Update();
-        if (scene.hasCollisions(testParticle) && testParticle.IsDead())
-            renderQueue.remove(testParticle);
+        if (numPlayers < 2)
+            playing = false;  /* game is over */
+
+        else if (scene.isActive()){ /* keep running the scene until all motion has stopped */
+            scene.update();
+        }
+
+        else{ /* player logic */
+
+        }
     }
 
     /*User left the game, close the gameLoop thread */

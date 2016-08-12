@@ -16,8 +16,9 @@ public class Projectile extends Rectangle {
 
     public int getDamage() { return damage;}
 
-    public Projectile(float CenterX, float CenterY, float Width, float Height){
+    public Projectile(float CenterX, float CenterY, float Width, float Height, int Damage){
         super(CenterX, CenterY, Width, Height);
+        damage = Damage;
         addRenderer();
         collider = new CircleCollider();
         super.setCollider(collider);

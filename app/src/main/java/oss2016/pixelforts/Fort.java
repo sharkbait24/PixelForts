@@ -15,7 +15,6 @@ public class Fort extends Transform{
     private float height;
     private Collider collider;
     private Rectangle[] rectangles;
-    private boolean needsRedrawn;
 
     public Fort(){
         super();
