@@ -146,9 +146,10 @@ class GameView extends GLSurfaceView implements Runnable{
     /* Run the scene while there are active objects in it.
         If the scene is quiet, have the next player play*/
     public void update() {
-        if (numPlayers < 2)
+        if (numPlayers < 2) {
             playing = false;  /* game is over */
-
+            scene.destroyScene();
+        }
         else if (scene.isActive()){ /* keep running the scene until all motion has stopped */
             scene.update();
 

@@ -184,6 +184,13 @@ public class Scene {
         }
         return false;
     }
+
+    /* Called when the game is over and the scene needs to be removed */
+    public void destroyScene(){
+        regions = null;
+        players = null;
+        renderQueue.removeAll();
+    }
 }
 
 /* holds the start of the list and the horizontal coordinates the the region spans
