@@ -15,7 +15,6 @@ import java.util.concurrent.locks.ReentrantLock;
 public class RenderQueue {
     private Node head;
     private Node tail;
-    private Node free; /* free RenderNode list */
     private float[] mMVPMatrix;
 
     private final ReentrantLock lock = new ReentrantLock();
@@ -33,12 +32,7 @@ public class RenderQueue {
                 return;
             }
 
-            Node temp;
-            if (free != null) {
-                temp = nextFree();
-                temp.object = toAdd;
-            } else
-                temp = new Node(toAdd);
+            Node temp = new Node(toAdd);
 
             if (tail == null) {
                 head = temp;
@@ -64,16 +58,14 @@ public class RenderQueue {
             Node previous = null;
             while (current != null) {
                 if (current.object == toRemove) {
-                    Node temp = current;
                     current = current.next;
-                    if (temp.next == null)
+                    if (current == null)
                         tail = previous;
                     if (previous == null) {
                         head = current;
                     } else
                         previous.next = current;
 
-                    addFree(temp);
                     return true;
                 }
                 else {
@@ -113,42 +105,10 @@ public class RenderQueue {
                     head = current;
                 else
                     previous.next = current;
-
-                addFree(toRemove);
             }
         } finally {
             lock.unlock();
         }
-    }
-
-    /* The free list will hold all of the RenderNodes that were instantiated but not
-    currently used.  This will help by limiting the amount of heap allocation calls. */
-    private void addFree(Node toAdd){
-        toAdd.next = free;
-        free = toAdd;
-        toAdd.object = null;
-    }
-
-    /* Remove the first node in the list */
-    private Node nextFree(){
-        if (free == null)
-            return null;
-
-        Node temp = free;
-        free = free.next;
-        return  temp;
-    }
-
-    /* All the GameManager to empty this list, especially after the game load when hundreds
-        of objects will be in the queue. */
-    public void emptyFreeList(){
-        lock.lock();
-        try {
-            free = null;
-        } finally {
-            lock.unlock();
-        }
-
     }
 
     /* Destroy the entire queue */
@@ -157,7 +117,6 @@ public class RenderQueue {
         try {
             head = null;
             tail = null;
-            free = null;
         }finally {
             lock.unlock();
         }

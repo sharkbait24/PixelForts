@@ -16,7 +16,6 @@ public class Scene {
     private Region[] regions;
     private RenderQueue renderQueue;
 
-    public RenderQueue getRenderQueue(){ return renderQueue; }
     public boolean isActive() {
         if (active == null)
             return false;
@@ -88,7 +87,7 @@ public class Scene {
             {
                 /* go through the regions and remove all references to the fort */
                 removeFromRegion(players[i]);
-                //renderQueue.remove(players[i]);
+                renderQueue.remove(players[i]);
                 return;
             }
         }
@@ -152,7 +151,7 @@ public class Scene {
 
             if (current.object.IsDead() || !current.object.IsMoving()){
                 if (current.object.IsDead())
-                    //renderQueue.remove(current.object);
+                    renderQueue.remove(current.object);
 
                 if (prev == null)
                     active = current.next;

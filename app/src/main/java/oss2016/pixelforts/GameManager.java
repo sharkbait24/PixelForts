@@ -140,6 +140,7 @@ class GameView extends GLSurfaceView implements Runnable{
                 } catch (Exception e) {}
             }
         }
+        Log.w("gameLoop", " finished playing");
     }
 
     /* Run the scene while there are active objects in it.
@@ -179,6 +180,8 @@ class GameView extends GLSurfaceView implements Runnable{
                 Fort playerFort = players[currentPlayer].Fort();
                 players[currentPlayer].setWeapon(new Weapon(playerFort.CenterX(), playerFort.Top(), 20, .03f));
                 setupPlayer = true;
+                fire = false;
+                chargingWeapon = false;
             }
             if (chargingWeapon){
                 /* full charge in roughly 1 second */
@@ -195,9 +198,6 @@ class GameView extends GLSurfaceView implements Runnable{
                     currentPlayer = 0;
 
                 setupPlayer = false;
-                fire = false;
-                chargingWeapon = false;
-
             }
 
         }
@@ -243,7 +243,9 @@ class GameView extends GLSurfaceView implements Runnable{
     public void pause() {
         playing = false;
         try {
+            Log.w("gameLoop", gameLoop.getName() + " paused");
             gameLoop.join();
+
         } catch (InterruptedException e){
             Log.e("Error:", "joining thread");
         }
