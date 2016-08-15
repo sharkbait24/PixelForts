@@ -2,20 +2,34 @@
 <!--Copyright (c) 2016 Joe Coleman
     This program is available under the "MIT" license.
     Please see the COPYING file for license information.-->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:showIn="@layout/activity_game_manager">
+    android:paddingBottom="16dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="16dp"
+    tools:context=".StartScreen">
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="@string/app_name"/>
+        android:hint="@string/app_name"
+        android:layout_gravity="center_vertical"
+        android:id="@+id/textView2"
+        android:textStyle="bold"
+        android:textSize="42dp"
+        android:layout_above="@+id/button"
+        android:layout_centerHorizontal="true" />
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/start_button"
-        android:onClick="startGame" />
-</LinearLayout>
+        android:onClick="startGame"
+        android:layout_gravity="bottom"
+        android:id="@+id/button"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>

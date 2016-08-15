@@ -10,7 +10,11 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.Toast;
 
 /* Copyright (c) 2016 Joe Coleman
    This program is available under the "MIT" license.
@@ -24,6 +28,8 @@ import android.view.WindowManager;
 public class GameManager extends AppCompatActivity {
     private GameView gmView;
     private static DisplayMetrics metrics = new DisplayMetrics();
+    private String[] playerNames;
+    int numPlayers = 2;
 
     public static DisplayMetrics getMetrics() {return metrics;}
 
@@ -32,19 +38,99 @@ public class GameManager extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
-
-        // Create a GLSurfaceVIew instance and set it
-        // as the ContentView for this Activity.
-        gmView = new GameView(this, this);
-        setContentView(gmView);
+        setContentView(R.layout.activity_game_manager); /* get player info */
     }
+
+    public void playGame(View view){
+        /* get player names and number of players */
+        if (getPlayerNames(view)) {
+            // Create a GLSurfaceVIew instance and set it
+            // as the ContentView for this Activity.
+            gmView = new GameView(this, this, numPlayers, playerNames);
+            onResume(); /* start threads */
+            setContentView(gmView);
+        }
+        else
+            Toast.makeText(this, "All active players must have a name", Toast.LENGTH_LONG).show();
+    }
+
+    /* Gets the number of active players and their names */
+    private boolean getPlayerNames(View view){
+        String testName;
+        EditText editText;
+        CheckBox checkBox;
+        String[] temp = new String[5];
+
+        /* player 1*/
+        editText = (EditText)findViewById(R.id.editText);
+        testName = editText.getText().toString();
+        if (testName == null || testName.length() == 0)
+            return false;
+        temp[0] = testName;
+
+        /* player 2*/
+        editText = (EditText)findViewById(R.id.editText2);
+        testName = editText.getText().toString();
+        if (testName == null || testName.length() == 0)
+            return false;
+        temp[1] = testName;
+
+        /* player 3*/
+        checkBox = (CheckBox)findViewById(R.id.checkBox);
+        if (checkBox.isChecked()) {
+            ++numPlayers;
+            editText = (EditText) findViewById(R.id.editText3);
+            testName = editText.getText().toString();
+            if (testName == null || testName.length() == 0)
+                return false;
+            temp[2] = testName;
+        }
+
+        /* player 4*/
+        checkBox = (CheckBox)findViewById(R.id.checkBox2);
+        if (checkBox.isChecked()) {
+            ++numPlayers;
+            editText = (EditText) findViewById(R.id.editText4);
+            testName = editText.getText().toString();
+            if (testName == null || testName.length() == 0)
+                return false;
+            temp[3] = testName;
+        }
+
+        /* player 5*/
+        checkBox = (CheckBox)findViewById(R.id.checkBox3);
+        if (checkBox.isChecked()) {
+            ++numPlayers;
+            editText = (EditText) findViewById(R.id.editText5);
+            testName = editText.getText().toString();
+            if (testName == null || testName.length() == 0)
+                return false;
+            temp[4] = testName;
+        }
+
+        /* rebuild the player name array with the exact number of elements */
+        if (numPlayers < 5){
+            playerNames = new String[numPlayers];
+            int j = 0;
+            for (int i = 0; i < numPlayers; ++i){
+                while(j < 5 && temp[j] == null);
+                playerNames[i] = temp[j];
+            }
+        }
+        else
+            playerNames = temp;
+        return true;
+    }
+
+
 
     /* Called by android when the player starts*/
     @Override
     protected void onResume() {
         super.onResume();
 
-        gmView.resume();
+        if(gmView != null)
+            gmView.resume();
     }
 
     /* Called by Android when the player change focus from the game */
@@ -52,7 +138,8 @@ public class GameManager extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
 
-        gmView.pause();
+        if(gmView != null)
+            gmView.pause();
     }
 }
 /* The main game thread.  The GLSurfaceView is used to render objects and detect touch events.
@@ -85,9 +172,10 @@ class GameView extends GLSurfaceView implements Runnable{
 
 
 
-    public GameView(Context context, AppCompatActivity appLevel) {
+    public GameView(Context context, AppCompatActivity appLevel, int numPlayers, String [] playerNames) {
         super(context);
         app = appLevel;
+        this.numPlayers = numPlayers;
 
         // Create an OpenGL ES 2.0 context
         setEGLContextClientVersion(2);
@@ -99,14 +187,14 @@ class GameView extends GLSurfaceView implements Runnable{
 
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
-        gameStart();
+        gameStart(playerNames);
     }
 
     /* initial game setup */
-    private void gameStart() {
+    private void gameStart(String [] playerNames) {
         players = new Player[numPlayers];
         for (int i = 0; i < numPlayers; ++i)
-            players[i] = new Human("Player " + (i + 1));
+            players[i] = new Human(playerNames[i]);
         scene = new Scene(players);
         for (int i = 0; i < numPlayers; ++i) {
             players[i].setWeapon(new Weapon(players[i].Fort().CenterX(), players[i].Fort().Top(), 20, .01f));
