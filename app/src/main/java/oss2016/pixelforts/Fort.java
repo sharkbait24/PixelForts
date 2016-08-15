@@ -10,11 +10,13 @@ package oss2016.pixelforts;
 */
 public class Fort extends Transform{
     private int health = 100;
+    private float healthPercent = 1.0f;
 
     private float width;
     private float height;
     private Collider collider;
     private Rectangle[] rectangles;
+    private Rectangle healthBar;
 
     public Fort(){
         super();
@@ -39,6 +41,9 @@ public class Fort extends Transform{
                 rectangles[i].addRenderer();
                 rectangles[i].setColor(1.0f, .2f, .2f, 0.0f);
             }
+
+            healthBar = new Rectangle();
+            healthBar.addRenderer();
             Collider temp = new BoxCollider(); /* compound collider for Fort */
             setCollider(temp);
         }
@@ -55,6 +60,8 @@ public class Fort extends Transform{
         rectangles[0].setDimensions(Width, .8f * Height);
         rectangles[1].setDimensions(0.3f * Width, .2f * Height);
         rectangles[2].setDimensions(0.3f * Width, .2f * Height);
+
+        setHealthBar();
     }
 
     /* adds the renderer needed for each rectangle */
@@ -105,6 +112,13 @@ public class Fort extends Transform{
         return false;
     }
 
+    /* set the health bar based on the percent health of the fort */
+    private void setHealthBar(){
+        healthBar.SetCenter(CenterX(), CenterY() + .6f * height);
+        healthBar.setDimensions(width * healthPercent, .1f * height);
+        healthBar.setColor(1.0f * (1.0f - healthPercent), 1.0f * healthPercent, 0.0f, 0.0f);
+    }
+
     /* Build the vertices for each rectangle so they can be drawn */
     public void buildVertices(){
         for (int i = 0; i < rectangles.length; ++i) {
@@ -117,14 +131,18 @@ public class Fort extends Transform{
         for (int i = 0; i < rectangles.length; ++i) {
             rectangles[i].Draw(mvpMatrix);
         }
+        healthBar.Draw(mvpMatrix);
     }
 
     /* called by projectiles on collision */
     public void dealDamage(int damage){
         health -= damage;
-        if (health <= 0)
+        healthPercent = (float) health / 100.0f;
+        if (health <= 0) {
+            healthPercent = 0.0f;
             setDead(true);
-        setDimensions(0.0f, 0.0f);
+        }
+        setHealthBar();
     }
 
     /* Returns the bounds of the object */
