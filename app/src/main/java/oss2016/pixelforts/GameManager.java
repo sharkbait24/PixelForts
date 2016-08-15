@@ -108,6 +108,10 @@ class GameView extends GLSurfaceView implements Runnable{
         for (int i = 0; i < numPlayers; ++i)
             players[i] = new Human("Player " + (i + 1));
         scene = new Scene(players);
+        for (int i = 0; i < numPlayers; ++i) {
+            players[i].setWeapon(new Weapon(players[i].Fort().CenterX(), players[i].Fort().Top(), 20, .01f));
+            players[i].currentWeapon().removeCrosshair();
+        }
         currentPlayer = 0;
         setupPlayer = false;
         chargingWeapon = false;
@@ -180,27 +184,25 @@ class GameView extends GLSurfaceView implements Runnable{
 
         else{ /* player logic */
             if (!setupPlayer){
-                Fort playerFort = players[currentPlayer].Fort();
-                players[currentPlayer].setWeapon(new Weapon(playerFort.CenterX(), playerFort.Top(), 20, .01f));
+                players[currentPlayer].currentWeapon().activateCrosshair();
                 setupPlayer = true;
                 fire = false;
                 chargingWeapon = false;
             }
             if (chargingWeapon){
                 /* full charge in roughly 1 second */
-                players[currentPlayer].currentWeapon().charge(4.0f / fps);
+                players[currentPlayer].currentWeapon().charge(1.0f / fps);
             }
             else if (fire){
                 Projectile bullet = players[currentPlayer].currentWeapon().fire();
                 scene.addActive(bullet);
                 GMGLRenderer.getRenderQueue().Add(bullet);
+                setupPlayer = false;
+                players[currentPlayer].currentWeapon().removeCrosshair();
 
-                players[currentPlayer].destroyWeapon();
                 ++currentPlayer;
                 if (currentPlayer >= numPlayers)
                     currentPlayer = 0;
-
-                setupPlayer = false;
             }
         }
     }
@@ -221,7 +223,7 @@ class GameView extends GLSurfaceView implements Runnable{
         switch (motionEvent.getAction()){
             case MotionEvent.ACTION_DOWN:
                 /* Check if we pressed the fire button */
-                if (!chargingWeapon  && (xWorld < -1.7f && yWorld < -.7f))
+                if (setupPlayer && !chargingWeapon  && (xWorld < -1.7f && yWorld < -.7f))
                     chargingWeapon = true;
 
                 /* final cleanup */

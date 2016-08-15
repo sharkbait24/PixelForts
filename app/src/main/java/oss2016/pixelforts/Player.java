@@ -46,7 +46,7 @@ public abstract class Player {
     }
 
     public void destroyWeapon(){
-        weapon.destroy();
+        weapon.removeCrosshair();
         weapon = null;
     }
 }

@@ -21,6 +21,7 @@ public class Weapon {
     private float maxCharge;
     private int damage;
     private Crosshair crosshair;
+    private boolean crosshairActive;
 
     public float UnitX(){ return unitX;}
     public float UnitY(){ return unitY;}
@@ -61,8 +62,9 @@ public class Weapon {
             unitY = minY;
         else
             unitY = yNorm;
-        
-        crosshair.update(centerX, centerY, unitX, unitY);
+
+        if(crosshair != null)
+            crosshair.update(centerX, centerY, unitX, unitY);
     }
 
     /* Add onto charge value */
@@ -81,10 +83,17 @@ public class Weapon {
         return bullet;
     }
 
+    public void activateCrosshair(){
+        if (crosshair == null)
+            crosshair = new Crosshair(this);
+    }
+
     /* removes the crosshair */
-    public void destroy(){
-        crosshair.destroy();
-        crosshair = null;
+    public void removeCrosshair(){
+        if (crosshair != null) {
+            crosshair.destroy();
+            crosshair = null;
+        }
     }
 }
 
