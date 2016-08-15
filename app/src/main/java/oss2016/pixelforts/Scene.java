@@ -49,7 +49,7 @@ public class Scene {
             if (i % 10 == 0) {
                 random = (float) (Math.abs(rand.nextInt()) % 150) / 100.0f + 1.0f;
             }
-            height = 0.75f + (float) (Math.sin(2.0f * modX) / 1.5f);
+            height = 0.75f + (float) (Math.sin(2.0f * modX + 90f) / 1.5f);
             land[i].SetCenter(x, -1.0f + height / 2.0f);
             land[i].setCollider(new BoxCollider());
             land[i].setDimensions(0.05f, height);

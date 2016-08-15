@@ -167,6 +167,7 @@ class GameView extends GLSurfaceView implements Runnable{
     private boolean setupPlayer; /* holds if the player has been setup after switching players */
     private boolean chargingWeapon;
     private boolean fire;
+    private Rectangle fireButton;
 
     public static long FPS(){ return fps; }
 
@@ -204,6 +205,13 @@ class GameView extends GLSurfaceView implements Runnable{
         setupPlayer = false;
         chargingWeapon = false;
         fire = false;
+
+        /* place fire button */
+        fireButton = new Rectangle(-1.55f, -.75f, .5f, .5f );
+        fireButton.addRenderer();
+        fireButton.setColor(1.0f, .0f, .0f, 0.0f);
+        fireButton.setDimensions(.5f, .5f);
+        GMGLRenderer.getRenderQueue().Add(fireButton);
 
         /* allows the run() thread method to update the game */
         playing = true;
@@ -311,7 +319,7 @@ class GameView extends GLSurfaceView implements Runnable{
         switch (motionEvent.getAction()){
             case MotionEvent.ACTION_DOWN:
                 /* Check if we pressed the fire button */
-                if (setupPlayer && !chargingWeapon  && (xWorld < -1.7f && yWorld < -.7f))
+                if (setupPlayer && !chargingWeapon  && (xWorld < -1.45f && yWorld < -.4f))
                     chargingWeapon = true;
 
                 /* final cleanup */
