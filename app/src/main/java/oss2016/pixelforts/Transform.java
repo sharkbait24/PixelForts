@@ -67,7 +67,7 @@ public abstract class Transform {
         }
 
         if (hasGravity)
-            ApplyForce(0.0f, -.0003f);
+            ApplyForce(0.0f, -.00002f);
         SetCenter(centerX + velocityX, centerY + velocityY);
     }
 

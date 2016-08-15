@@ -1,5 +1,6 @@
 package oss2016.pixelforts;
 
+import android.app.Application;
 import android.content.Context;;;
 import android.opengl.GLSurfaceView;
 import android.os.SystemClock;
@@ -65,6 +66,7 @@ class GameView extends GLSurfaceView implements Runnable{
     private final GMGLRenderer gmRenderer;
     private Thread gameLoop = null;
     volatile boolean playing;
+    volatile boolean leaveGame; /* used to determine when the player is ready to leave the game */
     private static final int fpsCap = 30; /* desired maximum frame rate in seconds*/
     private static final long fpsCapMillis = 1000 / fpsCap;
     private static long fps; /* frame rate for update loop*/
@@ -111,6 +113,7 @@ class GameView extends GLSurfaceView implements Runnable{
 
         /* allows the run() thread method to update the game */
         playing = true;
+        leaveGame = false;
     }
 
     /* called as part of the Thread class by Android and performs the main game loop updating
@@ -120,7 +123,7 @@ class GameView extends GLSurfaceView implements Runnable{
         long startFrameTime;
         fps = 1000 / fpsCapMillis; /* default to desired frame rate */
         long sleepTime;
-        while (playing){
+        while (!leaveGame){
             startFrameTime = SystemClock.uptimeMillis();
 
             update();
@@ -140,13 +143,13 @@ class GameView extends GLSurfaceView implements Runnable{
                 } catch (Exception e) {}
             }
         }
-        Log.w("gameLoop", " finished playing");
     }
 
     /* Run the scene while there are active objects in it.
         If the scene is quiet, have the next player play*/
     public void update() {
         if (numPlayers < 2) {
+
             playing = false;  /* game is over */
             scene.destroyScene();
         }
@@ -179,7 +182,7 @@ class GameView extends GLSurfaceView implements Runnable{
         else{ /* player logic */
             if (!setupPlayer){
                 Fort playerFort = players[currentPlayer].Fort();
-                players[currentPlayer].setWeapon(new Weapon(playerFort.CenterX(), playerFort.Top(), 20, .03f));
+                players[currentPlayer].setWeapon(new Weapon(playerFort.CenterX(), playerFort.Top(), 20, .01f));
                 setupPlayer = true;
                 fire = false;
                 chargingWeapon = false;
@@ -200,7 +203,6 @@ class GameView extends GLSurfaceView implements Runnable{
 
                 setupPlayer = false;
             }
-
         }
     }
 
@@ -220,8 +222,13 @@ class GameView extends GLSurfaceView implements Runnable{
         switch (motionEvent.getAction()){
             case MotionEvent.ACTION_DOWN:
                 /* Check if we pressed the fire button */
-               if (!chargingWeapon  && (xWorld < -1.7f && yWorld < -.7f))
+                if (!chargingWeapon  && (xWorld < -1.7f && yWorld < -.7f))
                     chargingWeapon = true;
+
+                /* final cleanup */
+                if(!playing){
+                    exit();
+                }
 
                 /* else fall through to the next case */
             case MotionEvent.ACTION_MOVE:
@@ -240,13 +247,19 @@ class GameView extends GLSurfaceView implements Runnable{
         return true;
     }
 
+    public void exit(){
+        scene.destroyScene();
+        leaveGame = true;
+    }
+
     /*User left the game, close the gameLoop thread */
     public void pause() {
-        playing = false;
-        try {
-            Log.w("gameLoop", gameLoop.getName() + " paused");
-            gameLoop.join();
+        super.onPause(); /* GLSurfaceView's onPause that stops the OpenGL Rendering thread */
 
+        playing = false;
+        leaveGame = true;
+        try {
+            gameLoop.join();
         } catch (InterruptedException e){
             Log.e("Error:", "joining thread");
         }
@@ -254,7 +267,10 @@ class GameView extends GLSurfaceView implements Runnable{
 
     /* The GameManager has started (restarted) */
     public void resume() {
+        super.onResume(); /* GLSurfaceView's onResume that starts the OpenGL thread */
+
         playing = true;
+        leaveGame = false;
         gameLoop = new Thread(this);
         gameLoop.start();
     }

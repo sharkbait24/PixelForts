@@ -21,7 +21,16 @@
             </intent-filter>
         </activity>
         <activity android:name=".GameManager"
-            android:screenOrientation="landscape"></activity>
+            android:screenOrientation="landscape"
+            android:launchMode="singleTask"
+            android:alwaysRetainTaskState="true"
+            android:parentActivityName=".StartScreen" >
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".StartScreen" />
+        </activity>
     </application>
 
 </manifest>
