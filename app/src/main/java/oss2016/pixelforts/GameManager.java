@@ -35,7 +35,7 @@ public class GameManager extends AppCompatActivity {
 
         // Create a GLSurfaceVIew instance and set it
         // as the ContentView for this Activity.
-        gmView = new GameView(this);
+        gmView = new GameView(this, this);
         setContentView(gmView);
     }
 
@@ -63,6 +63,7 @@ public class GameManager extends AppCompatActivity {
     <http://gamecodeschool.com/android/building-a-simple-game-engine/>
  */
 class GameView extends GLSurfaceView implements Runnable{
+    private final AppCompatActivity app;
     private final GMGLRenderer gmRenderer;
     private Thread gameLoop = null;
     volatile boolean playing;
@@ -84,8 +85,9 @@ class GameView extends GLSurfaceView implements Runnable{
 
 
 
-    public GameView(Context context) {
+    public GameView(Context context, AppCompatActivity appLevel) {
         super(context);
+        app = appLevel;
 
         // Create an OpenGL ES 2.0 context
         setEGLContextClientVersion(2);
@@ -248,8 +250,9 @@ class GameView extends GLSurfaceView implements Runnable{
     }
 
     public void exit(){
+        pause();
         scene.destroyScene();
-        leaveGame = true;
+        app.finish();
     }
 
     /*User left the game, close the gameLoop thread */
